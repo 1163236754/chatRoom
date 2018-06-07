@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gjt.chat.dao.mapper.ChatUserInformationMapper" >
+  <resultMap id="BaseResultMap" type="com.gjt.chat.entity.ChatUserInformation" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="stu_id" property="stuId" jdbcType="VARCHAR" />
+    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+    <result column="hobby" property="hobby" jdbcType="VARCHAR" />
+    <result column="class_id" property="classId" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="password_encrypted" property="passwordEncrypted" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, stu_id, nick_name, hobby, class_id, name, phone, address, password_encrypted,
+    created_at, updated_at
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from chat_userinformation
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from chat_userinformation
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gjt.chat.entity.ChatUserInformation" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into chat_userinformation (stu_id, nick_name, hobby,
+      class_id, name, phone,
+      address, password_encrypted, created_at,
+      updated_at)
+    values (#{stuId,jdbcType=VARCHAR}, #{nickName,jdbcType=VARCHAR}, #{hobby,jdbcType=VARCHAR},
+      #{classId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR},
+      #{address,jdbcType=VARCHAR}, #{passwordEncrypted,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP},
+      #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gjt.chat.entity.ChatUserInformation" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into chat_userinformation
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="stuId != null" >
+        stu_id,
+      </if>
+      <if test="nickName != null" >
+        nick_name,
+      </if>
+      <if test="hobby != null" >
+        hobby,
+      </if>
+      <if test="classId != null" >
+        class_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="passwordEncrypted != null" >
+        password_encrypted,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="stuId != null" >
+        #{stuId,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="hobby != null" >
+        #{hobby,jdbcType=VARCHAR},
+      </if>
+      <if test="classId != null" >
+        #{classId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordEncrypted != null" >
+        #{passwordEncrypted,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gjt.chat.entity.ChatUserInformation" >
+    update chat_userinformation
+    <set >
+      <if test="stuId != null" >
+        stu_id = #{stuId,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        nick_name = #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="hobby != null" >
+        hobby = #{hobby,jdbcType=VARCHAR},
+      </if>
+      <if test="classId != null" >
+        class_id = #{classId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordEncrypted != null" >
+        password_encrypted = #{passwordEncrypted,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gjt.chat.entity.ChatUserInformation" >
+    update chat_userinformation
+    set stu_id = #{stuId,jdbcType=VARCHAR},
+      nick_name = #{nickName,jdbcType=VARCHAR},
+      hobby = #{hobby,jdbcType=VARCHAR},
+      class_id = #{classId,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      password_encrypted = #{passwordEncrypted,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByPageSize" resultType="com.gjt.chat.entity.ChatShowInfoList" parameterType="Map" >
+    SELECT
+        chat_userinformation.id,
+        chat_userinformation.stu_id as stuId,
+        chat_userinformation.`name`,
+        chat_userinformation.nick_name as nickName,
+        chat_userinformation.class_id as classId,
+        chat_loginmessage.is_login as isOnline,
+        chat_userinformation.phone
+    FROM
+        `chat_userinformation`
+    LEFT JOIN chat_loginmessage ON chat_userinformation.stu_id = chat_loginmessage.username
+    <if test="stuId != null">
+      WHERE chat_userinformation.stu_id LIKE #{stuId,jdbcType=VARCHAR}
+    </if>
+    <if test="classId != null">
+      WHERE chat_userinformation.class_id LIKE #{classId,jdbcType=VARCHAR}
+    </if>
+    ORDER BY
+    chat_userinformation.id DESC
+    LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+
+  <select id="getAllCount" resultType="java.lang.Integer"  >
+    SELECT
+		COUNT(*)
+    FROM
+    `chat_userinformation`
+    LEFT JOIN chat_loginmessage ON chat_userinformation.stu_id = chat_loginmessage.username
+  </select>
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gjt.chat.dao.mapper.ChatGroupChatMapper" >
+  <resultMap id="BaseResultMap" type="com.gjt.chat.entity.ChatGroupChat" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="group_num" property="groupNum" jdbcType="VARCHAR" />
+    <result column="group_nick_name" property="groupNickName" jdbcType="VARCHAR" />
+    <result column="groupCapacity" property="groupcapacity" jdbcType="INTEGER" />
+    <result column="groupMasterId" property="groupmasterid" jdbcType="VARCHAR" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, group_num, group_nick_name, groupCapacity, groupMasterId, created_at, updated_at
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from chat_groupchat
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from chat_groupchat
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gjt.chat.entity.ChatGroupChat" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into chat_groupchat (group_num, group_nick_name, groupCapacity, 
+      groupMasterId, created_at, updated_at
+      )
+    values (#{groupNum,jdbcType=VARCHAR}, #{groupNickName,jdbcType=VARCHAR}, #{groupcapacity,jdbcType=INTEGER}, 
+      #{groupmasterid,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.gjt.chat.entity.ChatGroupChat" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into chat_groupchat
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="groupNum != null" >
+        group_num,
+      </if>
+      <if test="groupNickName != null" >
+        group_nick_name,
+      </if>
+      <if test="groupcapacity != null" >
+        groupCapacity,
+      </if>
+      <if test="groupmasterid != null" >
+        groupMasterId,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="groupNum != null" >
+        #{groupNum,jdbcType=VARCHAR},
+      </if>
+      <if test="groupNickName != null" >
+        #{groupNickName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupcapacity != null" >
+        #{groupcapacity,jdbcType=INTEGER},
+      </if>
+      <if test="groupmasterid != null" >
+        #{groupmasterid,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gjt.chat.entity.ChatGroupChat" >
+    update chat_groupchat
+    <set >
+      <if test="groupNum != null" >
+        group_num = #{groupNum,jdbcType=VARCHAR},
+      </if>
+      <if test="groupNickName != null" >
+        group_nick_name = #{groupNickName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupcapacity != null" >
+        groupCapacity = #{groupcapacity,jdbcType=INTEGER},
+      </if>
+      <if test="groupmasterid != null" >
+        groupMasterId = #{groupmasterid,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gjt.chat.entity.ChatGroupChat" >
+    update chat_groupchat
+    set group_num = #{groupNum,jdbcType=VARCHAR},
+      group_nick_name = #{groupNickName,jdbcType=VARCHAR},
+      groupCapacity = #{groupcapacity,jdbcType=INTEGER},
+      groupMasterId = #{groupmasterid,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

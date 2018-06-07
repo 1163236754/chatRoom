@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gjt.chat.dao.mapper.ChatLoginMessageMapper" >
+  <resultMap id="BaseResultMap" type="com.gjt.chat.entity.ChatLoginMessage" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password_encrypted" property="passwordEncrypted" jdbcType="VARCHAR" />
+    <result column="password_token" property="passwordToken" jdbcType="VARCHAR" />
+    <result column="sign_in_count" property="signInCount" jdbcType="INTEGER" />
+    <result column="current_sign_in_at" property="currentSignInAt" jdbcType="TIMESTAMP" />
+    <result column="last_sign_in_at" property="lastSignInAt" jdbcType="TIMESTAMP" />
+    <result column="need_reset_password" property="needResetPassword" jdbcType="TINYINT" />
+    <result column="login_ip" property="loginIp" jdbcType="VARCHAR" />
+    <result column="is_login" property="isLogin" jdbcType="INTEGER" />
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, username, password_encrypted, password_token, sign_in_count, current_sign_in_at,
+    last_sign_in_at, need_reset_password, login_ip, is_login, created_at, updated_at
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from chat_loginmessage
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from chat_loginmessage
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gjt.chat.entity.ChatLoginMessage" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into chat_loginmessage (username, password_encrypted, password_token,
+      sign_in_count, current_sign_in_at, last_sign_in_at,
+      need_reset_password, login_ip, is_login,
+      created_at, updated_at)
+    values (#{username,jdbcType=VARCHAR}, #{passwordEncrypted,jdbcType=VARCHAR}, #{passwordToken,jdbcType=VARCHAR},
+      #{signInCount,jdbcType=INTEGER}, #{currentSignInAt,jdbcType=TIMESTAMP}, #{lastSignInAt,jdbcType=TIMESTAMP},
+      #{needResetPassword,jdbcType=TINYINT}, #{loginIp,jdbcType=VARCHAR}, #{isLogin,jdbcType=INTEGER},
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gjt.chat.entity.ChatLoginMessage" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into chat_loginmessage
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="passwordEncrypted != null" >
+        password_encrypted,
+      </if>
+      <if test="passwordToken != null" >
+        password_token,
+      </if>
+      <if test="signInCount != null" >
+        sign_in_count,
+      </if>
+      <if test="currentSignInAt != null" >
+        current_sign_in_at,
+      </if>
+      <if test="lastSignInAt != null" >
+        last_sign_in_at,
+      </if>
+      <if test="needResetPassword != null" >
+        need_reset_password,
+      </if>
+      <if test="loginIp != null" >
+        login_ip,
+      </if>
+      <if test="isLogin != null" >
+        is_login,
+      </if>
+      <if test="createdAt != null" >
+        created_at,
+      </if>
+      <if test="updatedAt != null" >
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordEncrypted != null" >
+        #{passwordEncrypted,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordToken != null" >
+        #{passwordToken,jdbcType=VARCHAR},
+      </if>
+      <if test="signInCount != null" >
+        #{signInCount,jdbcType=INTEGER},
+      </if>
+      <if test="currentSignInAt != null" >
+        #{currentSignInAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastSignInAt != null" >
+        #{lastSignInAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="needResetPassword != null" >
+        #{needResetPassword,jdbcType=TINYINT},
+      </if>
+      <if test="loginIp != null" >
+        #{loginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="isLogin != null" >
+        #{isLogin,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gjt.chat.entity.ChatLoginMessage" >
+    update chat_loginmessage
+    <set >
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordEncrypted != null" >
+        password_encrypted = #{passwordEncrypted,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordToken != null" >
+        password_token = #{passwordToken,jdbcType=VARCHAR},
+      </if>
+      <if test="signInCount != null" >
+        sign_in_count = #{signInCount,jdbcType=INTEGER},
+      </if>
+      <if test="currentSignInAt != null" >
+        current_sign_in_at = #{currentSignInAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastSignInAt != null" >
+        last_sign_in_at = #{lastSignInAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="needResetPassword != null" >
+        need_reset_password = #{needResetPassword,jdbcType=TINYINT},
+      </if>
+      <if test="loginIp != null" >
+        login_ip = #{loginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="isLogin != null" >
+        is_login = #{isLogin,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null" >
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gjt.chat.entity.ChatLoginMessage" >
+    update chat_loginmessage
+    set username = #{username,jdbcType=VARCHAR},
+      password_encrypted = #{passwordEncrypted,jdbcType=VARCHAR},
+      password_token = #{passwordToken,jdbcType=VARCHAR},
+      sign_in_count = #{signInCount,jdbcType=INTEGER},
+      current_sign_in_at = #{currentSignInAt,jdbcType=TIMESTAMP},
+      last_sign_in_at = #{lastSignInAt,jdbcType=TIMESTAMP},
+      need_reset_password = #{needResetPassword,jdbcType=TINYINT},
+      login_ip = #{loginIp,jdbcType=VARCHAR},
+      is_login = #{isLogin,jdbcType=INTEGER},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getAllOnLine" resultType="java.lang.Integer">
+    SELECT COUNT(*) FROM chat_loginmessage WHERE is_login = 1
+  </select>
+
+</mapper>
