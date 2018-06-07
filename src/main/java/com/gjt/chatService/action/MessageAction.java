@@ -28,7 +28,7 @@ public class MessageAction {
         message.setReciver(object.getReciver());
         message.setContent(object.getContent());
         message.setSenderIp(object.getSenderIp());
-        message.setGroupId(object.getGroupId());
+//        message.setGroupId(object.getGroupId());
         if(messageService.MessageSendService(message) == 1){
             System.out.println("发送成功");
             return 1;
@@ -48,7 +48,7 @@ public class MessageAction {
         message.setReciver(object.getReciver());
         message.setContent(object.getContent());
         message.setSenderIp(object.getSenderIp());
-        message.setGroupId(object.getGroupId());
+        message.setGroupId(object.getReciver());
         if(messageService.MessageSendGroupService(message) == 1){
             System.out.println("发送成功");
             return 1;

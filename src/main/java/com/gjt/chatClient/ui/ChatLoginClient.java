@@ -1,11 +1,14 @@
-package com.gjt.chatClient;
+package com.gjt.chatClient.ui;
 
 import com.gjt.chatService.entity.LoginEntity;
 import com.gjt.chatService.entity.ResponseEntity;
-import com.gjt.chatService.utils.TcpSocketUtils;
 import com.gjt.chatService.utils.MessageUtils;
+import com.gjt.chatService.utils.TcpSocketUtils;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;

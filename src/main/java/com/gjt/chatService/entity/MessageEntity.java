@@ -1,6 +1,7 @@
 package com.gjt.chatService.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author 官江涛
@@ -25,6 +26,7 @@ public class MessageEntity implements Serializable{
     private String sender;
     /**
      * 接收人名称
+     * 可以是人或者群
      */
     private String reciver;
     /**
@@ -35,10 +37,15 @@ public class MessageEntity implements Serializable{
      * 发送内容
      */
     private String content;
+
     /**
-     * 群ID
+     * 发送者名称
      */
-    private String groupId;
+    private String senderName;
+    /**
+     * 发送时间，专为群聊定制
+     */
+    private Date senderTime;
 
     public String getType() {
         return type;
@@ -79,12 +86,28 @@ public class MessageEntity implements Serializable{
     public void setContent(String content) {
         this.content = content;
     }
+//
+//    public String getGroupId() {
+//        return groupId;
+//    }
+//
+//    public void setGroupId(String groupId) {
+//        this.groupId = groupId;
+//    }
 
-    public String getGroupId() {
-        return groupId;
+    public String getSenderName() {
+        return senderName;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public Date getSenderTime() {
+        return senderTime;
+    }
+
+    public void setSenderTime(Date senderTime) {
+        this.senderTime = senderTime;
     }
 }

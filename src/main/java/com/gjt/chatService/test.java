@@ -1,9 +1,9 @@
 package com.gjt.chatService;
 
-import com.gjt.chatService.action.MainAction;
-import com.gjt.chatService.entity.MessageEntity;
-
-import java.util.Scanner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * @author 官江涛
@@ -13,22 +13,11 @@ import java.util.Scanner;
  */
 public class test {
 
-    public static void main(String[] args) {
-        MainAction mainAction = new MainAction();
-        MessageEntity messageEntity = new MessageEntity();
-        messageEntity.setType("sendGroup");
-        messageEntity.setSender("11621380110");
-        messageEntity.setGroupId("116213801");
-        System.out.println("请输入你要输入的发送的");
-        while (true){
-            Scanner sc = new Scanner(System.in);
-            String content = sc.next();
-            messageEntity.setContent(content);
-            try {
-                mainAction.DealWithAction(messageEntity);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    public static void main(String[] args) throws ParseException {
+        Date dt = new Date();
+        System.out.println(dt);
+        SimpleDateFormat sdf1= new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+        SimpleDateFormat sdf2= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(sdf2.format(dt));
     }
 }

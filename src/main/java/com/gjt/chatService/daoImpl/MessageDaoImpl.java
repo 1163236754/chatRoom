@@ -133,12 +133,12 @@ public class MessageDaoImpl implements MessageDao{
         return resultValue;
     }
     /**
-     *  接收群消息
+     *  查看群历史消息
      * @param getMessageEntity
      * @return
      */
     @Override
-   synchronized public List<ChatGroupmessage> MessageReciveGroupAction(GetMessageEntity getMessageEntity) {
+    public List<ChatGroupmessage> MessageReciveGroupAction(GetMessageEntity getMessageEntity) {
         // 启动工具
         SqlEntity sqlEntity = new SqlEntity();
         // 设置where条件的Id
@@ -162,22 +162,6 @@ public class MessageDaoImpl implements MessageDao{
                     e.printStackTrace();
                 }
             }
-            sqlEntity.setId("groupNumber");
-            sqlEntity.setTableName(KeyWord.DB_chat_offlinegroupmessage);
-            sqlEntity.setContent("'"+getMessageEntity.getGroupId()+"'");
-            try {
-                sql = baseSQL.BaseDeleteSQL() + baseSQL.BaseWhereSQL();
-                System.out.println("生成的SQL语句是："+sql);
-            } catch (Exception e) {
-                System.out.println("sql语句有问题，请检查：" + sql);
-                e.printStackTrace();
-            }
-            int i = sqlUtils.Update(sql);
-            if(i == 1){
-                System.out.println("删除成功");
-            }else {
-                System.err.println("删除失败");
-            }
             System.out.println("查询成功");
         }else {
             System.err.println("查询失败，已经没有未读消息了！");
@@ -192,6 +176,7 @@ public class MessageDaoImpl implements MessageDao{
      */
     @Override
     public int InsertGroupMessage(Message getMessageEntity) {
+        // 解决实体字段和表字段不对应的问题
         GroupMessage groupMessage = new GroupMessage();
         groupMessage.setSender(getMessageEntity.getSender());
         groupMessage.setContent(getMessageEntity.getContent());
@@ -215,17 +200,6 @@ public class MessageDaoImpl implements MessageDao{
             e.printStackTrace();
         }
         int InsertMessage = sqlUtils.Update(sql);
-        sqlEntity.setTableName(KeyWord.DB_chat_offlinegroupmessage);
-        try {
-            sql = baseSQL.BaseValueSQL();
-            System.out.println("离线群消息列表,生成的SQL语句是"+sql);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        int resultMessage =  sqlUtils.Update(sql);
-        if(resultMessage == 1&& InsertMessage == 1){
-            return 1;
-        }
         if(InsertMessage == 1){
             return 1;
         }

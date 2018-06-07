@@ -1,7 +1,6 @@
-package com.gjt.chatClient;
+package com.gjt.chatClient.ui;
 
 import com.gjt.chat.entity.ChatGroupmessage;
-import com.gjt.chatService.entity.GetMessageEntity;
 import com.gjt.chatService.entity.MessageEntity;
 import com.gjt.chatService.entity.ResponseEntity;
 import com.gjt.chatService.entity.TCPEntity;
@@ -11,8 +10,11 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author 官江涛
@@ -31,10 +33,12 @@ public class Chat{
     public void StartThread(){
         Socket connect = conn.ConnectTcpClient();
         new Thread(new SendThread(connect)).start();
-        new Thread(new ReceiveThread(connect)).start();
+//        new Thread(new ReceiveThread(connect)).start();
+        // 接收服务器端发送过来的信息的线程启动
+        ExecutorService exec = Executors.newCachedThreadPool();
+        exec.execute(new ListenrServser(connect));
+        new Thread(new ListenrServser(connect)).start();
     }
-
-
 }
 
 /**
@@ -49,18 +53,14 @@ class SendThread implements Runnable {
      * 是否运行
      */
     private boolean isRun = true;
-
     /**
      * Send Message
      */
     MessageEntity messageEntity = new MessageEntity();
 
-
-
     public SendThread(Socket client) {
         this.client = client;
     }
-
     /**
      * 发送消息
      */
@@ -91,10 +91,10 @@ class SendThread implements Runnable {
             e.printStackTrace();
         }finally {
             try {
-                if(os == null ){
+                if(os != null ){
                     os.close();
                 }
-                if(oos == null){
+                if(oos != null){
                     oos.close();
                 }
             } catch (IOException e) {
@@ -111,7 +111,10 @@ class SendThread implements Runnable {
         System.out.println("这里发送消息");
         messageEntity.setType("sendGroup");
         messageEntity.setSender("11621380110");
-        messageEntity.setGroupId("116213801");
+        // 这里可以设置群或者收信人
+        messageEntity.setReciver("116213801");
+        messageEntity.setSenderName("官江涛");
+        messageEntity.setSenderTime(new Date());
         System.out.println("请输入你要输入的发送的");
         while (isRun){
             Scanner sc = new Scanner(System.in);
@@ -154,7 +157,7 @@ class ReceiveThread implements Runnable {
     /**
      * Get Message
      */
-    GetMessageEntity getMessageEntity = new GetMessageEntity();
+//    GetMessageEntity getMessageEntity = new GetMessageEntity();
 
     public ReceiveThread(Socket client) {
         this.client = client;
@@ -165,22 +168,22 @@ class ReceiveThread implements Runnable {
      * @throws Exception
      */
     public void Recevice() throws Exception {
-        //判断输出流是否已经关闭，如果关闭就重新new Socket
-        if (client.isOutputShutdown()) {
-            try {
-                client = new Socket(TCPEntity.conAddr, TCPEntity.port);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        OutputStream os = client.getOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(os);
-        if(getMessageEntity.getGroupId() != null){
-            oos.writeObject(getMessageEntity);
-            oos.writeObject(null);
-            oos.flush();
-        }
-        client.shutdownOutput();
+//        //判断输出流是否已经关闭，如果关闭就重新new Socket
+//        if (client.isOutputShutdown()) {
+//            try {
+//                client = new Socket(TCPEntity.conAddr, TCPEntity.port);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        OutputStream os = client.getOutputStream();
+//        ObjectOutputStream oos = new ObjectOutputStream(os);
+//        if(getMessageEntity.getGroupId() != null){
+//            oos.writeObject(getMessageEntity);
+//            oos.writeObject(null);
+//            oos.flush();
+//        }
+//        client.shutdownOutput();
         InputStream is = client.getInputStream();
         ObjectInputStream ois=new ObjectInputStream(is);
         List<ResponseEntity > obj = (List<ResponseEntity>) ois.readObject();
@@ -230,14 +233,38 @@ class ReceiveThread implements Runnable {
     @Override
     public void run() {
         while (isRun) {
-            getMessageEntity.setGroupId("116213801");
-            getMessageEntity.setType("groupMessage");
+//            getMessageEntity.setGroupId("116213801");
+//            getMessageEntity.setType("groupMessage");
             try {
-                Thread.sleep(3000);
+//                Thread.sleep(3000);
                 Recevice();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+}
+// 监听群消息
+class ListenrServser implements Runnable {
+
+    Socket connect = null;
+
+    public ListenrServser(Socket connect){
+        this.connect = connect;
+    }
+
+    @Override
+    public void run() {
+        try {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(connect.getInputStream(), "UTF-8"));
+            String msgString;
+            while((msgString = br.readLine())!= null) {
+                System.out.println(msgString);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

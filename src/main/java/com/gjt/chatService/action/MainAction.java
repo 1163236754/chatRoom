@@ -1,6 +1,5 @@
 package com.gjt.chatService.action;
 
-import com.gjt.chat.entity.ChatGroupmessage;
 import com.gjt.chat.entity.ChatMessage;
 import com.gjt.chatService.entity.GetMessageEntity;
 import com.gjt.chatService.entity.LoginEntity;
@@ -81,24 +80,6 @@ public class MainAction {
                 result.add(responseEntity);
                 return result;
             }
-        }else if(type.get("type").equals("groupMessage")){
-            // 请求群消息
-            MessageAction messageAction = new MessageAction();
-            List<ChatGroupmessage> message = messageAction.MessageReciveGroupAction((GetMessageEntity) object);
-            if(message != null){
-                ResponseEntity responseEntity = new ResponseEntity();
-                responseEntity.setStatusCode("200");
-                responseEntity.setResponseContent("接收成功");
-                responseEntity.setChatGroupmessages(message);
-                result.add(responseEntity);
-                return result;
-            }else {
-                ResponseEntity responseEntity = new ResponseEntity();
-                responseEntity.setStatusCode("201");
-                responseEntity.setResponseContent("接收失败");
-                result.add(responseEntity);
-                return result;
-            }
         } else if(type.get("type").equals("sendGroup")){
             MessageAction messageAction = new MessageAction();
             int value = messageAction.MessageSendGroupService((MessageEntity)object);
@@ -116,6 +97,25 @@ public class MainAction {
                 return result;
             }
         }
+//        else if(type.get("type").equals("groupMessage")){
+//            // 请求群消息
+//            MessageAction messageAction = new MessageAction();
+//            List<ChatGroupmessage> message = messageAction.MessageReciveGroupAction((GetMessageEntity) object);
+//            if(message != null){
+//                ResponseEntity responseEntity = new ResponseEntity();
+//                responseEntity.setStatusCode("200");
+//                responseEntity.setResponseContent("接收成功");
+//                responseEntity.setChatGroupmessages(message);
+//                result.add(responseEntity);
+//                return result;
+//            }else {
+//                ResponseEntity responseEntity = new ResponseEntity();
+//                responseEntity.setStatusCode("201");
+//                responseEntity.setResponseContent("接收失败");
+//                result.add(responseEntity);
+//                return result;
+//            }
+//        }
         return null;
     }
 }
