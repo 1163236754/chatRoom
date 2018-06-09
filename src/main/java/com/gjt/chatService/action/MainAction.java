@@ -30,7 +30,7 @@ public class MainAction {
         Map<String,String> type = new HashMap<>();
         fields[0].setAccessible(true);
         type.put(fields[0].getName(),fields[0].get(object).toString());
-        if(type.get("type").equals("login")){
+        if(type.get("type").equals("Login")){
             LoginAction loginAction = new LoginAction();
             int value = loginAction.validPassWord((LoginEntity) object);
             if(value == 1){
@@ -97,25 +97,6 @@ public class MainAction {
                 return result;
             }
         }
-//        else if(type.get("type").equals("groupMessage")){
-//            // 请求群消息
-//            MessageAction messageAction = new MessageAction();
-//            List<ChatGroupmessage> message = messageAction.MessageReciveGroupAction((GetMessageEntity) object);
-//            if(message != null){
-//                ResponseEntity responseEntity = new ResponseEntity();
-//                responseEntity.setStatusCode("200");
-//                responseEntity.setResponseContent("接收成功");
-//                responseEntity.setChatGroupmessages(message);
-//                result.add(responseEntity);
-//                return result;
-//            }else {
-//                ResponseEntity responseEntity = new ResponseEntity();
-//                responseEntity.setStatusCode("201");
-//                responseEntity.setResponseContent("接收失败");
-//                result.add(responseEntity);
-//                return result;
-//            }
-//        }
         return null;
     }
 }

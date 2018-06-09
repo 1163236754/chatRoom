@@ -1,6 +1,5 @@
 package com.gjt.chatService.entity;
 
-import com.gjt.chat.entity.ChatGroupmessage;
 import com.gjt.chat.entity.ChatMessage;
 
 import java.io.Serializable;
@@ -25,7 +24,7 @@ public class ResponseEntity implements Serializable {
     /**
      * 群消息
      */
-    private List<ChatGroupmessage> chatGroupmessages;
+    private List<ReturnMessageEntity> chatGroupmessages;
 
     public String getStatusCode() {
         return statusCode;
@@ -51,11 +50,11 @@ public class ResponseEntity implements Serializable {
         this.messagesData = messagesData;
     }
 
-    public List<ChatGroupmessage> getChatGroupmessages() {
+    public List<ReturnMessageEntity> getChatGroupmessages() {
         return chatGroupmessages;
     }
 
-    public void setChatGroupmessages(List<ChatGroupmessage> chatGroupmessages) {
+    public void setChatGroupmessages(List<ReturnMessageEntity> chatGroupmessages) {
         this.chatGroupmessages = chatGroupmessages;
     }
 }
