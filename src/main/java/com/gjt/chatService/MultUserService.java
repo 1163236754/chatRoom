@@ -70,19 +70,6 @@ public class MultUserService {
         returnMessageEntities.add(message);
         responseEntity.setChatGroupmessages(returnMessageEntities);
         responseEntities.add(responseEntity);
-//        for (int i = clients.size() - 1; i >= 0; i--) {
-//            for(int j = clients.size() - 1; j >= 0; j--){
-//                try {
-//                    if (clients.get(i).getMessageEntity().getReciver().equals(clients.get(j).getMessageEntity().getSender())){
-//                        clients.get(i).getObjectOutputStream().writeObject(returnMessageEntities);
-//                        clients.get(i).getObjectOutputStream().flush();
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }j
-
         // 当消息的发送人等于接收人的时候则回发消息
         for (int j = 0; j < clients.size(); j++) {
             for(int i = clients.size() - 1; i >= 0; i--) {
@@ -192,7 +179,6 @@ public class MultUserService {
         public ChatServer(Socket socket) {
             this.socket = socket;
             try {
-                reader = new ObjectInputStream(socket.getInputStream());
                 writer = new ObjectOutputStream(socket.getOutputStream());
                 returnMessageEntity = new ReturnMessageEntity();
                 returnMessageEntities = new ArrayList<>();
@@ -226,14 +212,20 @@ public class MultUserService {
         // 不断接收客户端的消息，进行处理。
         @Override
         public void run() {
+            Object message = null;
             List<ResponseEntity> result = null;
             // 发过来的对象中间包含的值
             Map<String,Object> resultValue = null;
+            System.out.println("[服务器消息]"+socket.getInetAddress()+"接入成功");
             while (true){
                 try {
-                    System.out.println("[服务器消息]"+socket.getInetAddress()+"接入成功");
-                    Object message =  reader.readObject();
-                    if(message != null){
+                    reader = new ObjectInputStream(socket.getInputStream());
+                    message =  reader.readObject();
+
+                    messageEntity = (MessageEntity)message;
+
+                    if (message!=null){
+                        // 转为常规消息对象
                         // 解析对象
                         Class objectClass = message.getClass();
                         Field[] fields = objectClass.getDeclaredFields();
@@ -245,20 +237,19 @@ public class MultUserService {
                         fields[1].setAccessible(true);
                         type.put(fields[1].getName(),fields[1].get(message).toString());
                         // 重组链接Map，将原来占位的key变为正确的key值
-
                         for (int i = 0; i < clients.size() ; i++) {
+                            // 如果当前链接是改链接则向map中插入一组数据
                             if (clients.get(i) == this){
                                 clientMap.put(type.get("sender").toString(), clients.get(i));
                             }
                         }
                         // 将对象通过反射技术转换成map
-                        resultValue = toObject(message);
-                        Thread.sleep(100);
                         // 如果是sendGroup 则群发消息
                         if(type.get("type").equals("sendGroup")){
                             // 请求数据库
                             MainAction mainAction = new MainAction();
-                            result = mainAction.DealWithAction(message);
+                            result =  mainAction.DealWithAction(message);
+                            resultValue = toObject(message);
                             // Map转成对象
                             returnMessageEntity = getMapToObj(resultValue);
                             // 测试多人发送
@@ -268,18 +259,12 @@ public class MultUserService {
                             // 请求数据库
                             MainAction mainAction = new MainAction();
                             result = mainAction.DealWithAction(message);
+                            resultValue = toObject(message);
                             // Map转成对象
                             returnMessageEntity = getMapToObj(resultValue);
-                            // 转为常规消息对象
-                            messageEntity = (MessageEntity)message;
                             SendToOne(getReturnMessageEntity());
                         }else if (type.get("type").equals("conn")){
                             System.out.println("链接成功");
-                            // Map转成对象
-                            returnMessageEntity = getMapToObj(resultValue);
-                            // 转为常规消息对象
-                            messageEntity = (MessageEntity)message;
-                            SendToOne(getReturnMessageEntity());
                         }else {
                             // 请求数据库
                             MainAction mainAction = new MainAction();
@@ -287,10 +272,8 @@ public class MultUserService {
                             writer.writeObject(result);
                             writer.flush();
                         }
-                    }else {
-                        System.out.println("暂无数据送入");
-                        Thread.sleep(3000);
                     }
+
                 } catch (Exception e) {
                     System.out.println("IO输出异常");
                     e.printStackTrace();
@@ -345,7 +328,7 @@ public class MultUserService {
             SimpleDateFormat sdf1= new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
             SimpleDateFormat sdf2= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             // 遍历所有输出流，将该客户端发送的信息转发给所有客户端
-            System.out.println("时间："+sdf2.format(dt)+"发送人:"+resultValue.get("senderName")+"内容："+ resultValue.get("content"));
+            System.out.println("时间："+sdf2.format(dt)+" 发送人:"+resultValue.get("senderName")+" 内容："+ resultValue.get("content"));
             ReturnMessageEntity returnMessageEntity = new ReturnMessageEntity();
             returnMessageEntity.setTime(sdf2.format(dt).toString());
             returnMessageEntity.setName(resultValue.get("senderName").toString());

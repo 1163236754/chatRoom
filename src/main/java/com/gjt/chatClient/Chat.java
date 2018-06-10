@@ -37,6 +37,7 @@ public class Chat{
 
     // 是否运行
     private boolean isRun = false;
+
     // socket链接
     private Socket connect;
 
@@ -52,7 +53,7 @@ public class Chat{
     }
     public static void main(String[] args) {
         Chat sendThread = new Chat();
-        sendThread.StartThread("11621380110");
+        sendThread.StartThread("11621380111");
 
     }
     // 终止线程
@@ -92,16 +93,15 @@ public class Chat{
          * 用户名
          */
         private String userName;
-
+        /**
+         * 是否启动
+         */
+        private Boolean isStart = false;
 
         public SendThread(Socket client, String userName) {
             this.client = client;
             this.userName = userName;
-            try {
-                writer = new ObjectOutputStream(client.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
 
         /**
@@ -110,13 +110,33 @@ public class Chat{
         public void Send() {
             try {
                 String ip = InetAddress.getLocalHost().getHostAddress();
+                try {
+                    writer = new ObjectOutputStream(client.getOutputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 if(messageEntity.getContent() != null){
                     messageEntity.setSenderIp(ip);
                     writer.writeObject(messageEntity);
-                    writer.writeObject("\n");
                     writer.flush();
+                    if(messageEntity.getType().equals("send")){
+                        PrintMessage(messageEntity);
+                    }
                 }
             }catch (IOException e) {
+                e.printStackTrace();
+            }
+            return ;
+        }
+
+        private void PrintMessage(MessageEntity messageEntity) {
+            System.out.println("我：");
+            System.out.println("时间：" + messageEntity.getSenderTime());
+            System.out.println("来自："+messageEntity.getSenderName());
+            System.out.println("内容："+messageEntity.getContent());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             return ;
@@ -125,14 +145,24 @@ public class Chat{
         /**
          * 建立链接
          */
-        private void connected(){
-            messageEntity.setType("conn");
-            messageEntity.setSender(userName);
-            messageEntity.setReciver("11621380110");
-            messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("官江涛");
-            messageEntity.setContent("建立链接");
-            Send();
+        private boolean connected(){
+            if(!isStart){
+                messageEntity.setType("conn");
+                messageEntity.setSender(userName);
+                messageEntity.setReciver("11621380110");
+                messageEntity.setSenderTime(new Date());
+//                messageEntity.setSenderName("官江涛");
+                messageEntity.setSenderName("黎明");
+                messageEntity.setContent("建立链接");
+                Send();
+                isStart = true;
+                System.out.println("链接成功");
+            }else {
+                isStart = false;
+                System.out.println("链接失败,重新建立链接");
+                connected();
+            }
+            return isStart;
         }
         public void SendMessage(){
 //            System.out.println("这里发送消息");
@@ -147,7 +177,7 @@ public class Chat{
             messageEntity.setSender(userName);
             messageEntity.setReciver("11621380110");
             messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("官江涛");
+            messageEntity.setSenderName("测试2");
             Scanner sc = new Scanner(System.in);
             System.out.println("请输入你要输入的发送的");
             while (true){
@@ -162,9 +192,8 @@ public class Chat{
         }
         @Override
         public void run() {
-            // 建立链接
-            connected();
-            while (isRun) {
+//            connected()
+            while (true) {
                 try {
                     System.out.println("发送线程打开");
                     SendMessage();
@@ -210,6 +239,7 @@ public class Chat{
          * @param returnMessageEntity
          */
         private void PrintMessage(List<ResponseEntity> returnMessageEntity) {
+            System.out.println("对方：");
             if(returnMessageEntity.get(0).getChatGroupmessages()!=null){
                 for (int i = 0; i < returnMessageEntity.get(0).getChatGroupmessages().size(); i++) {
                     System.out.println("时间：" + returnMessageEntity.get(0).getChatGroupmessages().get(i).getTime().toString());
