@@ -1,10 +1,19 @@
 package com.gjt.chatClient;
 
+//import com.gjt.chatClient.ui.chatui.ChatPanel;
 import com.gjt.chatService.entity.LoginEntity;
 import com.gjt.chatService.entity.MessageEntity;
 import com.gjt.chatService.entity.ResponseEntity;
 import com.gjt.chatService.utils.TcpSocketUtils;
 
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,7 +22,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * @author 官江涛
@@ -21,7 +29,7 @@ import java.util.Scanner;
  * @Title:  聊天
  * @date 2018/6/1/16:50
  */
-public class Chat{
+public class Chat extends JFrame implements ActionListener, KeyListener {
     // 建立链接的工具
     private  TcpSocketUtils conn  = new TcpSocketUtils();
     // 写
@@ -37,9 +45,116 @@ public class Chat{
 
     // 是否运行
     private boolean isRun = false;
-
     // socket链接
     private Socket connect;
+    // 好友列表
+    private JButton friendList;
+    // 分组列表
+    private JButton groupList;
+    // listModel用于动态更新list数据
+    private DefaultListModel listModel;
+     // 列表
+    private JList jList;
+    // 全局列表 好友
+    private String[] list1;
+    // 全局列表 群
+    private String[] list2;
+    // 点击的名称
+    private  String clickName;
+    // 发送
+    private JButton submit;
+    // 输入框
+    private JTextField inputField;
+    // 文本域
+    private JTextArea contentArea;
+    // 显示当前在和谁聊天
+    private JLabel jLabel;
+
+    private JPanel listPanel;
+    private JPanel chatPanel;
+
+    static private Chat chat;
+
+    public Chat(){
+        listPanel = new JPanel();
+        listPanel.setBounds(0,0,200,700);
+        listPanel.setLayout(null);
+        // 好友列表
+        friendList = new JButton();
+        friendList.setText("好友列表");
+        // 让按钮上的字完全显示
+        friendList.setMargin(new java.awt.Insets(0,0,0,0));
+        friendList.setBounds(10,20,80,30);
+        friendList.addActionListener(this);
+        listPanel.add(friendList);
+        // 群消息列表
+        groupList = new JButton();
+        groupList.setText("群消息列表");
+        // 让按钮上的字完全显示
+        groupList.setMargin(new java.awt.Insets(0,0,0,0));
+        groupList.setBounds(100,20,80,30);
+        groupList.addActionListener(this);
+        listPanel.add(groupList);
+        // 展示好友列表
+        listModel = new DefaultListModel();
+        jList = new JList(listModel);
+        jList.setBounds(10,60,180,620);
+        // 设置一下首选大小
+        jList.setPreferredSize(new Dimension(200, 100));
+
+        // 允许可间断的多选
+        jList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        jList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                // 获取所有被选中的选项索引
+                int[] indices = jList.getSelectedIndices();
+                // 获取选项数据的 ListModel
+                ListModel<String> listModel = jList.getModel();
+                // 输出选中的选项
+                for (int index : indices) {
+                    clickName = listModel.getElementAt(index);
+                    System.out.println("选中: " + index + " = " + listModel.getElementAt(index));
+                }
+                System.out.println();
+            }
+        });
+        listPanel.add(jList);
+
+        chatPanel = new JPanel();
+        chatPanel.setBounds(200,0,700,700);
+        chatPanel.setLayout(null);
+        submit = new JButton();
+        submit.setBounds(600,600,90,50);
+        submit.setText("发送");
+        submit.addActionListener(this);
+        chatPanel.add(submit);
+        inputField = new JTextField();
+        inputField.setBounds(10,600,580,50);
+        chatPanel.add(inputField);
+        inputField.addKeyListener(this);
+        contentArea = new JTextArea();
+        contentArea.setBounds(10,30,680,540);
+        contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
+        jLabel = new JLabel();
+        jLabel.setBackground(Color.gray);
+        jLabel.setText("这是个测试label");
+        jLabel.setFont(new   java.awt.Font("Dialog",   1,   17));
+        jLabel.setBounds(10,0,680,30);
+        chatPanel.add(contentArea);
+        chatPanel.add(jLabel);
+        this.setTitle("GIM");
+        this.setLayout(null);
+        this.setBounds(700, 200, 900, 700);
+        this.setBackground(new Color(238,238,238));
+        this.add(listPanel);
+        this.add(chatPanel);
+        this.setResizable(false);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setVisible(true);
+
+    }
+
 
     public void StartThread(String userName){
         connect = conn.ConnectTcpClient();
@@ -52,9 +167,8 @@ public class Chat{
         recive.start();
     }
     public static void main(String[] args) {
-        Chat sendThread = new Chat();
-        sendThread.StartThread("11621380111");
-
+        chat = new Chat();
+        chat.StartThread("11621380110");
     }
     // 终止线程
     public synchronized boolean closeConnection() {
@@ -80,10 +194,49 @@ public class Chat{
         }
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        String str = e.getActionCommand();
+        String inputText = inputField.getText().trim();
+        if(str.equals("好友列表")){
+            System.out.println(str);
+            list1 = new String[]{"好友一", "好友二", "好友三", "好友四"};
+            listModel.removeAllElements();
+            for (int i = 0; i < list1.length; i++) {
+                listModel.addElement(list1[i]);
+            }
+        }else if (str.equals("好友列表")){
+            list2 = new String[]{"测试群一", "测试群二", "测试群三", "测试群四"};
+            listModel.removeAllElements();
+            for (int i = 0; i < list2.length; i++) {
+                listModel.addElement(list2[i]);
+            }
+        }else if(str.equals("发送")){
+            contentArea.append(" "+"11621380110"+"：   "+inputText+"\n");
+            // 清空消息
+            inputField.setText(null);
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(e.getKeyChar()==KeyEvent.VK_ENTER )
+        {
+            submit.doClick();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {}
+
     /**
      * 发送数据线程
      */
-    class SendThread implements Runnable {
+    public class SendThread implements Runnable {
         private Socket client;
         /**
          * 消息实体封装
@@ -169,23 +322,29 @@ public class Chat{
 //            messageEntity.setSenderTime(new Date());
 //            messageEntity.setSenderName("王翰");
             // 单人测试
-            System.out.println("这里发送消息");
+//            System.out.println("这里发送消息");
             messageEntity.setType("send");
             messageEntity.setSender(userName);
             messageEntity.setReciver("11621380110");
             messageEntity.setSenderTime(new Date());
             messageEntity.setSenderName("测试2");
-            Scanner sc = new Scanner(System.in);
-            System.out.println("请输入你要输入的发送的");
-            while (true){
-                String content = sc.next();
+//            Scanner sc = new Scanner(System.in);
+//            System.out.println("请输入你要输入的发送的");
+            String content = inputField.getText();
+            if(content!=null){
                 messageEntity.setContent(content);
-                try {
-                    Send();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                Send();
             }
+//            while (true){
+////                String content = sc.next();
+//
+//                try {
+//                    messageEntity.setContent(content);
+//                    Send();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
         @Override
         public void run() {
@@ -203,7 +362,7 @@ public class Chat{
      * 消息接收
      * 每隔一段时间请求一次数据
      */
-    class ReceiveThread implements Runnable {
+    public class ReceiveThread implements Runnable {
         private Socket client;
         private boolean isRun = true;
 
@@ -269,7 +428,7 @@ public class Chat{
         }
     }
 
-    class ChatLoginClient implements Runnable{
+    public class ChatLoginClient implements Runnable{
         Socket connect = null;
         /**
          * 设置登陆信息
