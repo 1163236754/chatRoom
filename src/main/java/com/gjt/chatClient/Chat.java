@@ -52,7 +52,7 @@ public class Chat{
     }
     public static void main(String[] args) {
         Chat sendThread = new Chat();
-        sendThread.StartThread("11621380111");
+        sendThread.StartThread("11621380110");
 
     }
     // 终止线程
@@ -113,7 +113,7 @@ public class Chat{
                 if(messageEntity.getContent() != null){
                     messageEntity.setSenderIp(ip);
                     writer.writeObject(messageEntity);
-                    writer.writeObject(null);
+                    writer.writeObject("\n");
                     writer.flush();
                 }
             }catch (IOException e) {
@@ -122,6 +122,18 @@ public class Chat{
             return ;
         }
 
+        /**
+         * 建立链接
+         */
+        private void connected(){
+            messageEntity.setType("conn");
+            messageEntity.setSender(userName);
+            messageEntity.setReciver("11621380110");
+            messageEntity.setSenderTime(new Date());
+            messageEntity.setSenderName("官江涛");
+            messageEntity.setContent("建立链接");
+            Send();
+        }
         public void SendMessage(){
 //            System.out.println("这里发送消息");
 //            messageEntity.setType("sendGroup");
@@ -135,7 +147,7 @@ public class Chat{
             messageEntity.setSender(userName);
             messageEntity.setReciver("11621380110");
             messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("黎明");
+            messageEntity.setSenderName("官江涛");
             Scanner sc = new Scanner(System.in);
             System.out.println("请输入你要输入的发送的");
             while (true){
@@ -150,6 +162,8 @@ public class Chat{
         }
         @Override
         public void run() {
+            // 建立链接
+            connected();
             while (isRun) {
                 try {
                     System.out.println("发送线程打开");

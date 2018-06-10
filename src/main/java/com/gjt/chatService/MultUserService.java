@@ -25,25 +25,33 @@ public class MultUserService {
 
     private ArrayList<ChatServer> clients;
 
-    private List<Map<String,ChatServer>> clientList;
+    private Map<String,ChatServer> clientMap;
 
     private ServerThread serverThread;
 
-    private List<ReturnMessageEntity> returnMessageEntities;
+    private List<ResponseEntity> returnMessageEntities;
 
-    private boolean isStart;
+    private Map<String,String> type;
+
+    private Boolean isStart;
+
+    private int connNum;
 
     public MultUserService() {}
-
     /**
      * 群发服务器消息
      * @param message
      */
     public void SendToMessage(ReturnMessageEntity message) {
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<ResponseEntity> responseEntities = new ArrayList<>();
+        List<ReturnMessageEntity>   returnMessageEntities = new ArrayList<>();
         returnMessageEntities.add(message);
+        responseEntity.setChatGroupmessages(returnMessageEntities);
+        responseEntities.add(responseEntity);
         for (int i = clients.size() - 1; i >= 0; i--) {
             try {
-                clients.get(i).getObjectOutputStream().writeObject(returnMessageEntities);
+                clients.get(i).getObjectOutputStream().writeObject(responseEntities);
                 clients.get(i).getObjectOutputStream().flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -56,7 +64,12 @@ public class MultUserService {
      * @param message
      */
     public void SendToOne(ReturnMessageEntity message){
+        ResponseEntity responseEntity = new ResponseEntity();
+        List<ResponseEntity> responseEntities = new ArrayList<>();
+        List<ReturnMessageEntity>   returnMessageEntities = new ArrayList<>();
         returnMessageEntities.add(message);
+        responseEntity.setChatGroupmessages(returnMessageEntities);
+        responseEntities.add(responseEntity);
 //        for (int i = clients.size() - 1; i >= 0; i--) {
 //            for(int j = clients.size() - 1; j >= 0; j--){
 //                try {
@@ -68,19 +81,23 @@ public class MultUserService {
 //                    e.printStackTrace();
 //                }
 //            }
-//        }j                                                                     j
-        for (int i = clientList.size() - 1; i >= 0; i--) {
-            for(int j = clients.size() - 1; j >= 0; j--) {
-                if (clientList.get(i).get("sender").equals(clients.get(j).getMessageEntity().getReciver())) {
+//        }j
+
+        // 当消息的发送人等于接收人的时候则回发消息
+        for (int j = 0; j < clients.size(); j++) {
+            for(int i = clients.size() - 1; i >= 0; i--) {
+                // 如果线程相同则发送消息
+                if (clientMap.get(clients.get(j).getMessageEntity().getReciver()) == (clients.get(i))) {
                     try {
-                        clients.get(j).getObjectOutputStream().writeObject(returnMessageEntities);
-                        clients.get(j).getObjectOutputStream().flush();
+                        clients.get(i).getObjectOutputStream().writeObject(responseEntities);
+                        clients.get(i).getObjectOutputStream().flush();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }
+        System.out.println("未找到合适的人");
     }
 
     /**
@@ -90,11 +107,14 @@ public class MultUserService {
         try {
             clients = new ArrayList<>();
             // 存一对链接信息
-            clientList = new ArrayList<>();
+            clientMap = new HashMap<>();
+            // 存入链接类型
+            type = new HashMap<>();
             serverSocket = new ServerSocket(TCPEntity.port);
             serverThread = new ServerThread(serverSocket);
             serverThread.start();
             isStart = true;
+            System.out.println("启动成功");
         } catch (BindException e) {
             isStart = false;
             try {
@@ -206,48 +226,70 @@ public class MultUserService {
         // 不断接收客户端的消息，进行处理。
         @Override
         public void run() {
-            Object message = null;
             List<ResponseEntity> result = null;
             // 发过来的对象中间包含的值
             Map<String,Object> resultValue = null;
             while (true){
                 try {
                     System.out.println("[服务器消息]"+socket.getInetAddress()+"接入成功");
-                    message = reader.readObject();
-                    // 解析对象
-                    Class objectClass = message.getClass();
-                    Field[] fields = objectClass.getDeclaredFields();
-                    Map<String,String> type = new HashMap<>();
-                    fields[0].setAccessible(true);
-                    // 存入类型
-                    type.put(fields[0].getName(),fields[0].get(message).toString());
-                    // 存入开发者名称
-                    fields[1].setAccessible(true);
-                    type.put(fields[1].getName(),fields[1].get(message).toString());
-                    Map<String,ChatServer> clientMap; clientMap = new HashMap<>();
-                    clientMap.put(type.get("ender").toString(), this);
-                    clientList.add(clientMap);
+                    Object message =  reader.readObject();
+                    if(message != null){
+                        // 解析对象
+                        Class objectClass = message.getClass();
+                        Field[] fields = objectClass.getDeclaredFields();
+                        type = new HashMap<>();
+                        fields[0].setAccessible(true);
+                        // 存入类型
+                        type.put(fields[0].getName(),fields[0].get(message).toString());
+                        // 此处存入开发者真正的名称
+                        fields[1].setAccessible(true);
+                        type.put(fields[1].getName(),fields[1].get(message).toString());
+                        // 重组链接Map，将原来占位的key变为正确的key值
 
-                    // 写入数据库
-                    MainAction mainAction = new MainAction();
-                    result = mainAction.DealWithAction(message);
-                    // 将对象通过反射技术转换成map
-                    resultValue = toObject(message);
-                    Thread.sleep(100);
-                    // 如果是sendGroup 则群发消息
-                    if(type.get("type").equals("sendGroup")){
-                        returnMessageEntity = getMapToObj(resultValue);
-                        // 测试多人发送
-                        SendToMessage(getReturnMessageEntity());
-                        // 如果是send则单发
-                    }else if (type.get("type").equals("send")){
-                        returnMessageEntity = getMapToObj(resultValue);
-                        // 转为常规消息对象
-                        messageEntity = (MessageEntity)message;
-                        SendToOne(getReturnMessageEntity());
+                        for (int i = 0; i < clients.size() ; i++) {
+                            if (clients.get(i) == this){
+                                clientMap.put(type.get("sender").toString(), clients.get(i));
+                            }
+                        }
+                        // 将对象通过反射技术转换成map
+                        resultValue = toObject(message);
+                        Thread.sleep(100);
+                        // 如果是sendGroup 则群发消息
+                        if(type.get("type").equals("sendGroup")){
+                            // 请求数据库
+                            MainAction mainAction = new MainAction();
+                            result = mainAction.DealWithAction(message);
+                            // Map转成对象
+                            returnMessageEntity = getMapToObj(resultValue);
+                            // 测试多人发送
+                            SendToMessage(getReturnMessageEntity());
+                            // 如果是send则单发
+                        }else if (type.get("type").equals("send")){
+                            // 请求数据库
+                            MainAction mainAction = new MainAction();
+                            result = mainAction.DealWithAction(message);
+                            // Map转成对象
+                            returnMessageEntity = getMapToObj(resultValue);
+                            // 转为常规消息对象
+                            messageEntity = (MessageEntity)message;
+                            SendToOne(getReturnMessageEntity());
+                        }else if (type.get("type").equals("conn")){
+                            System.out.println("链接成功");
+                            // Map转成对象
+                            returnMessageEntity = getMapToObj(resultValue);
+                            // 转为常规消息对象
+                            messageEntity = (MessageEntity)message;
+                            SendToOne(getReturnMessageEntity());
+                        }else {
+                            // 请求数据库
+                            MainAction mainAction = new MainAction();
+                            result = mainAction.DealWithAction(message);
+                            writer.writeObject(result);
+                            writer.flush();
+                        }
                     }else {
-                        writer.writeObject(result);
-                        writer.flush();
+                        System.out.println("暂无数据送入");
+                        Thread.sleep(3000);
                     }
                 } catch (Exception e) {
                     System.out.println("IO输出异常");
@@ -293,7 +335,11 @@ public class MultUserService {
             }
             return result;
         }
-
+        /**
+         * Map转对象
+         * @param resultValue
+         * @return
+         */
         private ReturnMessageEntity getMapToObj(Map<String, Object> resultValue){
             Date dt = (Date) resultValue.get("senderTime");
             SimpleDateFormat sdf1= new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
@@ -320,7 +366,8 @@ public class MultUserService {
 
         @Override
         public void run() {
-            while (true) {// 不停的等待客户端的链接
+            // 不停的等待客户端的链接
+            while (true) {
                 try {
                     Socket socket = serverSocket.accept();
                     ChatServer client = new ChatServer(socket);
