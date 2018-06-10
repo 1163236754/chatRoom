@@ -29,7 +29,7 @@ import java.util.List;
  * @Title:  聊天
  * @date 2018/6/1/16:50
  */
-public class Chat extends JFrame implements ActionListener, KeyListener {
+public class Chat extends JFrame implements ActionListener {
     // 建立链接的工具
     private  TcpSocketUtils conn  = new TcpSocketUtils();
     // 写
@@ -53,7 +53,7 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
     private JButton groupList;
     // listModel用于动态更新list数据
     private DefaultListModel listModel;
-     // 列表
+    // 列表
     private JList jList;
     // 全局列表 好友
     private String[] list1;
@@ -72,8 +72,10 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
 
     private JPanel listPanel;
     private JPanel chatPanel;
+    // 消息实体封装
+    private MessageEntity messageEntity ;
 
-    static private Chat chat;
+    private String userName;
 
     public Chat(){
         listPanel = new JPanel();
@@ -127,12 +129,11 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
         submit = new JButton();
         submit.setBounds(600,600,90,50);
         submit.setText("发送");
-        submit.addActionListener(this);
         chatPanel.add(submit);
         inputField = new JTextField();
         inputField.setBounds(10,600,580,50);
         chatPanel.add(inputField);
-        inputField.addKeyListener(this);
+        // 键盘监听事件
         contentArea = new JTextArea();
         contentArea.setBounds(10,30,680,540);
         contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
@@ -152,14 +153,14 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
-
+        messageEntity = new MessageEntity();
+        connect = conn.ConnectTcpClient();
     }
 
 
-    public void StartThread(String userName){
-        connect = conn.ConnectTcpClient();
-        // 登陆线程
-        send = new Thread(new SendThread(connect,userName));
+    public void StartThread(){
+        connected();
+        send =  new Thread(new SendThread(inputField,submit));
         send.start();
         isRun = true;
         // 接收线程
@@ -167,8 +168,50 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
         recive.start();
     }
     public static void main(String[] args) {
-        chat = new Chat();
-        chat.StartThread("11621380110");
+        Chat chat = new Chat();
+        chat.StartThread();
+    }
+    /**
+     * 发送消息
+     */
+    public void Send() {
+        try {
+            String ip = InetAddress.getLocalHost().getHostAddress();
+            try {
+                writer = new ObjectOutputStream(connect.getOutputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(messageEntity.getContent() != null){
+                messageEntity.setSenderIp(ip);
+                writer.writeObject(messageEntity);
+                writer.flush();
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ;
+    }
+    /**
+     * 建立链接
+     */
+    private void connected(){
+        if(!isRun){
+            messageEntity.setType("conn");
+            messageEntity.setSender("11621380110");
+            messageEntity.setReciver("11621380111");
+            messageEntity.setSenderTime(new Date());
+            messageEntity.setSenderName("测试1");
+            messageEntity.setContent("建立链接");
+            Send();
+            isRun = true;
+            System.out.println("链接成功");
+        }else {
+            isRun = false;
+            System.out.println("链接失败,重新建立链接,或者链接已经建立");
+            connected();
+        }
+        return ;
     }
     // 终止线程
     public synchronized boolean closeConnection() {
@@ -193,10 +236,8 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
             return false;
         }
     }
-
     @Override
     public void actionPerformed(ActionEvent e) {
-
         String str = e.getActionCommand();
         String inputText = inputField.getText().trim();
         if(str.equals("好友列表")){
@@ -212,157 +253,65 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
             for (int i = 0; i < list2.length; i++) {
                 listModel.addElement(list2[i]);
             }
-        }else if(str.equals("发送")){
-            contentArea.append(" "+"11621380110"+"：   "+inputText+"\n");
-            // 清空消息
-            inputField.setText(null);
         }
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {}
+    class SendThread implements Runnable{
+        JTextField inputField;
+        JButton submit;
+        public SendThread(JTextField inputField, JButton submit) {
+            jLabel.setText("测试2");
+            this.inputField = inputField;
+            this.submit = submit;
+            inputField.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
 
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if(e.getKeyChar()==KeyEvent.VK_ENTER )
-        {
-            submit.doClick();
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {}
-
-    /**
-     * 发送数据线程
-     */
-    public class SendThread implements Runnable {
-        private Socket client;
-        /**
-         * 消息实体封装
-         */
-        MessageEntity messageEntity = new MessageEntity();
-        /**
-         * 用户名
-         */
-        private String userName;
-        /**
-         * 是否启动
-         */
-        private Boolean isStart = false;
-
-        public SendThread(Socket client, String userName) {
-            this.client = client;
-            this.userName = userName;
-
-        }
-
-        /**
-         * 发送消息
-         */
-        public void Send() {
-            try {
-                String ip = InetAddress.getLocalHost().getHostAddress();
-                try {
-                    writer = new ObjectOutputStream(client.getOutputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-                if(messageEntity.getContent() != null){
-                    messageEntity.setSenderIp(ip);
-                    writer.writeObject(messageEntity);
-                    writer.flush();
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if(e.getKeyChar()==KeyEvent.VK_ENTER )
+                    {
+                        submit.doClick();
+                    }
                 }
-            }catch (IOException e) {
-                e.printStackTrace();
-            }
-            return ;
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+
+                }
+            });
+            submit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String content = inputField.getText();
+                    SendMessage(content);
+                    inputField.setText(null);
+                }
+            });
         }
-
-//        private void PrintMessage(MessageEntity messageEntity) {
-//            System.out.println("我：");
-//            System.out.println("时间：" + messageEntity.getSenderTime());
-//            System.out.println("来自："+messageEntity.getSenderName());
-//            System.out.println("内容："+messageEntity.getContent());
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            return ;
-//        }
-
         /**
-         * 建立链接
+         * 用户输入框
          */
-        private boolean connected(){
-            if(!isStart){
-                messageEntity.setType("conn");
-                messageEntity.setSender(userName);
-                messageEntity.setReciver("11621380110");
-                messageEntity.setSenderTime(new Date());
-//                messageEntity.setSenderName("官江涛");
-                messageEntity.setSenderName("黎明");
-                messageEntity.setContent("建立链接");
-                Send();
-                isStart = true;
-                System.out.println("链接成功");
-            }else {
-                isStart = false;
-                System.out.println("链接失败,重新建立链接");
-                connected();
-            }
-            return isStart;
-        }
-        public void SendMessage(){
-//            System.out.println("这里发送消息");
-//            messageEntity.setType("sendGroup");
-//            messageEntity.setSender(userName);
-//            messageEntity.setReciver("116213801");
-//            messageEntity.setSenderTime(new Date());
-//            messageEntity.setSenderName("王翰");
-            // 单人测试
-//            System.out.println("这里发送消息");
+        public void SendMessage(String content){
             messageEntity.setType("send");
-            messageEntity.setSender(userName);
-            messageEntity.setReciver("11621380110");
+            messageEntity.setSender("11621380110");
+            messageEntity.setReciver("11621380111");
             messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("测试2");
-//            Scanner sc = new Scanner(System.in);
-//            System.out.println("请输入你要输入的发送的");
-            String content = inputField.getText();
+            messageEntity.setSenderName("测试1");
             if(content!=null){
                 messageEntity.setContent(content);
                 Send();
             }
-//            while (true){
-////                String content = sc.next();
-//
-//                try {
-//                    messageEntity.setContent(content);
-//                    Send();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
         }
         @Override
         public void run() {
-            while (connected()) {
-                try {
-                    System.out.println("发送线程打开");
-                    SendMessage();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            System.out.println("发送线程启动");
         }
     }
-    /**
-     * 消息接收
-     * 每隔一段时间请求一次数据
-     */
-    public class ReceiveThread implements Runnable {
+
+    class ReceiveThread implements Runnable {
         private Socket client;
         private boolean isRun = true;
 
@@ -396,13 +345,19 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
         private void PrintMessage(List<ResponseEntity> returnMessageEntity) {
             if(returnMessageEntity.get(0).getChatGroupmessages()!=null){
                 for (int i = 0; i < returnMessageEntity.get(0).getChatGroupmessages().size(); i++) {
-                    System.out.println("\t\t\t时间" + returnMessageEntity.get(0).getChatGroupmessages().get(i).getTime().toString());
+                    contentArea.append(" 时间" + returnMessageEntity.get(0).getChatGroupmessages().get(i).getTime().toString()+"\n");
+                    contentArea.append(" 来自："+ returnMessageEntity.get(0).getChatGroupmessages().get(i).getName()+"\n");
+                    contentArea.append(" 内容："+ returnMessageEntity.get(0).getChatGroupmessages().get(i).getContent()+"\n");
+                    System.out.println("时间" + returnMessageEntity.get(0).getChatGroupmessages().get(i).getTime().toString());
                     System.out.println("来自："+ returnMessageEntity.get(0).getChatGroupmessages().get(i).getName());
                     System.out.println("内容："+ returnMessageEntity.get(0).getChatGroupmessages().get(i).getContent());
                 }
             }else {
                 for (int i = 0; i < returnMessageEntity.get(0).getChatGroupmessages().size(); i++) {
-                    System.out.println("\t\t\t时间：" + returnMessageEntity.get(0).getMessagesData().get(i).getSendTime().toString());
+                    contentArea.append(" 时间：" + returnMessageEntity.get(0).getMessagesData().get(i).getSendTime().toString()+"\n");
+                    contentArea.append(" 来自："+ returnMessageEntity.get(0).getMessagesData().get(i).getSender()+"\n");
+                    contentArea.append(" 内容："+ returnMessageEntity.get(0).getMessagesData().get(i).getContent()+"\n");
+                    System.out.println("时间：" + returnMessageEntity.get(0).getMessagesData().get(i).getSendTime().toString());
                     System.out.println("来自："+ returnMessageEntity.get(0).getMessagesData().get(i).getSender());
                     System.out.println("内容："+ returnMessageEntity.get(0).getMessagesData().get(i).getContent());
                 }
@@ -428,7 +383,7 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    public class ChatLoginClient implements Runnable{
+    class ChatLoginClient implements Runnable{
         Socket connect = null;
         /**
          * 设置登陆信息
@@ -471,9 +426,6 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
                 System.out.println("[系统通知：]"+result);
             }
             if(result.equals("登陆成功")){
-                // 发送线程
-                send = new Thread(new SendThread(connect,loginEntity.getUserName()));
-                send.start();
                 isRun = true;
                 // 接收线程
                 recive =  new Thread(new ReceiveThread(connect));
@@ -484,8 +436,6 @@ public class Chat extends JFrame implements ActionListener, KeyListener {
 
             }else {
                 System.out.println("登陆失败");
-//                conn.Close(connect);
-//                Login login = new Login();
             }
 
         }
