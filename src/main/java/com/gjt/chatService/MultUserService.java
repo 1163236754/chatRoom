@@ -72,12 +72,13 @@ public class MultUserService {
         responseEntities.add(responseEntity);
         // 当消息的发送人等于接收人的时候则回发消息
         for (int j = 0; j < clients.size(); j++) {
-            for(int i = clients.size() - 1; i >= 0; i--) {
+            for(int i = 0; i <  clients.size(); i++) {
                 // 如果线程相同则发送消息
                 if (clientMap.get(clients.get(j).getMessageEntity().getReciver()) == (clients.get(i))) {
                     try {
-                        clients.get(i).getObjectOutputStream().writeObject(responseEntities);
-                        clients.get(i).getObjectOutputStream().flush();
+                        clients.get(j).getObjectOutputStream().writeObject(responseEntities);
+                        clients.get(j).getObjectOutputStream().flush();
+                        break;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

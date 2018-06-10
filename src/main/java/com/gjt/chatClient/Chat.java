@@ -119,9 +119,6 @@ public class Chat{
                     messageEntity.setSenderIp(ip);
                     writer.writeObject(messageEntity);
                     writer.flush();
-                    if(messageEntity.getType().equals("send")){
-                        PrintMessage(messageEntity);
-                    }
                 }
             }catch (IOException e) {
                 e.printStackTrace();
@@ -129,18 +126,18 @@ public class Chat{
             return ;
         }
 
-        private void PrintMessage(MessageEntity messageEntity) {
-            System.out.println("我：");
-            System.out.println("时间：" + messageEntity.getSenderTime());
-            System.out.println("来自："+messageEntity.getSenderName());
-            System.out.println("内容："+messageEntity.getContent());
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return ;
-        }
+//        private void PrintMessage(MessageEntity messageEntity) {
+//            System.out.println("我：");
+//            System.out.println("时间：" + messageEntity.getSenderTime());
+//            System.out.println("来自："+messageEntity.getSenderName());
+//            System.out.println("内容："+messageEntity.getContent());
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            return ;
+//        }
 
         /**
          * 建立链接
@@ -192,8 +189,7 @@ public class Chat{
         }
         @Override
         public void run() {
-//            connected()
-            while (true) {
+            while (connected()) {
                 try {
                     System.out.println("发送线程打开");
                     SendMessage();
@@ -239,16 +235,15 @@ public class Chat{
          * @param returnMessageEntity
          */
         private void PrintMessage(List<ResponseEntity> returnMessageEntity) {
-            System.out.println("对方：");
             if(returnMessageEntity.get(0).getChatGroupmessages()!=null){
                 for (int i = 0; i < returnMessageEntity.get(0).getChatGroupmessages().size(); i++) {
-                    System.out.println("时间：" + returnMessageEntity.get(0).getChatGroupmessages().get(i).getTime().toString());
+                    System.out.println("\t\t\t时间" + returnMessageEntity.get(0).getChatGroupmessages().get(i).getTime().toString());
                     System.out.println("来自："+ returnMessageEntity.get(0).getChatGroupmessages().get(i).getName());
                     System.out.println("内容："+ returnMessageEntity.get(0).getChatGroupmessages().get(i).getContent());
                 }
             }else {
                 for (int i = 0; i < returnMessageEntity.get(0).getChatGroupmessages().size(); i++) {
-                    System.out.println("时间：" + returnMessageEntity.get(0).getMessagesData().get(i).getSendTime().toString());
+                    System.out.println("\t\t\t时间：" + returnMessageEntity.get(0).getMessagesData().get(i).getSendTime().toString());
                     System.out.println("来自："+ returnMessageEntity.get(0).getMessagesData().get(i).getSender());
                     System.out.println("内容："+ returnMessageEntity.get(0).getMessagesData().get(i).getContent());
                 }
