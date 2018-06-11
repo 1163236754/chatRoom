@@ -51,7 +51,6 @@ public class MultUserService extends JFrame{
     //列表组件
     private JList userList;
     private DefaultListModel listModel;
-
     //北方面板
     private JPanel northPanel;
     //南方面板
@@ -68,6 +67,7 @@ public class MultUserService extends JFrame{
     private JLabel onlineNumLabel;
     // 在线人数
     private int onlineNum;
+
 
     public MultUserService() {
         // 设置文本域
@@ -102,7 +102,7 @@ public class MultUserService extends JFrame{
         northPanel.add(btn_start);
         northPanel.add(btn_stop);
         northPanel.setBorder(new TitledBorder("基本信息"));
-        this.setTitle("服务器端");
+        this.setTitle("聊天室服务器端");
         this.setLayout(new BorderLayout());
         this.add(northPanel, "North");
         this.add(centerSplit, "Center");
@@ -320,7 +320,6 @@ public class MultUserService extends JFrame{
         public ChatServer(Socket socket) {
             this.socket = socket;
             try {
-                writer = new ObjectOutputStream(socket.getOutputStream());
                 returnMessageEntity = new ReturnMessageEntity();
                 returnMessageEntities = new ArrayList<>();
                 messageEntity = new MessageEntity();
@@ -408,6 +407,7 @@ public class MultUserService extends JFrame{
                         }else if (type.get("type").equals("conn")){
                             contentArea.append("链接成功\n");
                         }else {
+                            writer = new ObjectOutputStream(socket.getOutputStream());
                             // 请求数据库
                             MainAction mainAction = new MainAction();
                             result = mainAction.DealWithAction(message);
@@ -505,7 +505,7 @@ public class MultUserService extends JFrame{
         }
     }
 
-    public static void main(String[] args) {
+    public void StartServerService() {
         // 启动GUI
         MultUserService server = new MultUserService();
     }

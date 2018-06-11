@@ -2,7 +2,6 @@ package com.gjt.chatClient;
 
 //import com.gjt.chatClient.ui.chatui.ChatPanel;
 
-import com.gjt.chatService.entity.LoginEntity;
 import com.gjt.chatService.entity.MessageEntity;
 import com.gjt.chatService.entity.ResponseEntity;
 import com.gjt.chatService.utils.TcpSocketUtils;
@@ -20,7 +19,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 
@@ -77,8 +75,10 @@ public class Chat extends JFrame implements ActionListener {
     private JScrollPane sroll;
     // 消息实体封装
     private MessageEntity messageEntity ;
-
+    // 发送人
     private String userName;
+    //  接收人
+    private String revicerName;
 
     public Chat(){
         listPanel = new JPanel();
@@ -118,7 +118,7 @@ public class Chat extends JFrame implements ActionListener {
                 ListModel<String> listModel = jList.getModel();
                 // 输出选中的选项
                 for (int index : indices) {
-                    clickName = listModel.getElementAt(index);
+                    revicerName = listModel.getElementAt(index);
                     System.out.println("选中: " + index + " = " + listModel.getElementAt(index));
                 }
                 System.out.println();
@@ -135,11 +135,12 @@ public class Chat extends JFrame implements ActionListener {
         inputField = new JTextField();
         inputField.setBounds(10,600,580,50);
         chatPanel.add(inputField);
+        // 键盘监听事件
         contentArea = new JTextArea();
         contentArea.setBounds(10,30,680,540);
         contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
         sroll = new JScrollPane();
-        sroll.setBounds(670, 30, 10, 540);
+        sroll.setBounds(670, 0, 10, 540);
         sroll.setViewportView(contentArea);
         jLabel = new JLabel();
         jLabel.setBackground(Color.gray);
@@ -161,9 +162,9 @@ public class Chat extends JFrame implements ActionListener {
         messageEntity = new MessageEntity();
         connect = conn.ConnectTcpClient();
     }
-
-
-    public void StartThread(){
+    public void StartThread(String userName){
+        // 完成初始消息封装
+        this.userName = userName;
         send =  new Thread(new SendThread(inputField,submit));
         send.start();
         isRun = true;
@@ -171,12 +172,6 @@ public class Chat extends JFrame implements ActionListener {
         recive =  new Thread(new ReceiveThread(connect));
         recive.start();
     }
-    public static void main(String[] args) {
-        Chat chat = new Chat();
-        chat.StartThread();
-    }
-
-
     // 终止线程
     public synchronized boolean closeConnection() {
         try {
@@ -221,10 +216,12 @@ public class Chat extends JFrame implements ActionListener {
     }
 
     class SendThread implements Runnable{
+        // 输入框
         private JTextField inputField;
+        // 按钮发送按钮
         private JButton submit;
         public SendThread(JTextField inputField, JButton submit) {
-            jLabel.setText("测试1");
+            jLabel.setText("测试2");
             this.inputField = inputField;
             this.submit = submit;
             inputField.addKeyListener(new KeyListener() {
@@ -281,10 +278,10 @@ public class Chat extends JFrame implements ActionListener {
          */
         public void SendMessage(String content){
             messageEntity.setType("send");
-            messageEntity.setSender("11621380111");
-            messageEntity.setReciver("11621380110");
+            messageEntity.setSender(userName);
+            messageEntity.setReciver(revicerName);
             messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("测试2");
+            messageEntity.setSenderName("测试1");
             if(content!=null){
                 messageEntity.setContent(content);
                 Send();
@@ -295,10 +292,10 @@ public class Chat extends JFrame implements ActionListener {
          */
         private void connected(){
             if(isRun){
-                messageEntity.setSender("11621380111");
-                messageEntity.setReciver("11621380110");
+                messageEntity.setSender(userName);
+                messageEntity.setReciver(revicerName);
                 messageEntity.setSenderTime(new Date());
-                messageEntity.setSenderName("测试2");
+                messageEntity.setSenderName("测试1");
                 messageEntity.setContent("建立链接");
                 Send();
                 isRun = true;
@@ -387,102 +384,4 @@ public class Chat extends JFrame implements ActionListener {
             }
         }
     }
-
-    class ChatLoginClient implements Runnable{
-        Socket connect = null;
-        /**
-         * 设置登陆信息
-         */
-        private  LoginEntity loginEntity = new LoginEntity();
-
-        private String userName;
-
-        private String password;
-
-        public ChatLoginClient(Socket connect, String userName, String password) {
-            this.connect = connect;
-            try {
-                writer = new ObjectOutputStream(connect.getOutputStream());
-                reader=new ObjectInputStream(connect.getInputStream());
-                this.userName = userName;
-                this.password = password;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        /**
-         * 发送登陆验证
-         * @throws Exception
-         */
-        private  void SendMessage() throws Exception {
-            writer.writeObject(loginEntity);
-            writer.flush();
-            List<ResponseEntity > obj = (List<ResponseEntity>) reader.readObject();
-            String result = null;
-            if(obj != null){
-                for (int i = 0; i < obj.size(); i++) {
-                    if(obj.get(i).getResponseContent().equals("登陆成功")){
-                        result = "登陆成功";
-                    }else if (obj.get(i).getResponseContent().equals("登陆失败")){
-                        result = "登陆失败";
-                    }
-                }
-                System.out.println("[系统通知：]"+result);
-            }
-            if(result.equals("登陆成功")){
-                isRun = true;
-                // 接收线程
-                recive =  new Thread(new ReceiveThread(connect));
-                recive.start();
-                Thread.sleep(300);
-                // 停止登陆进程
-                login.stop();
-
-            }else {
-                System.out.println("登陆失败");
-            }
-
-        }
-        /**
-         * 初始化登陆组装
-         * @param userName
-         * @param password
-         */
-        private  void initFiles(String userName,String password) {
-            String ip = null;
-            try {
-                ip = InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-            // 账号
-            loginEntity.setUserName(userName);
-            // 密码
-            loginEntity.setPassword(password);
-            // ip地址
-            loginEntity.setIpAddress(ip);
-            // 时间
-            loginEntity.setLoginTime((new Date()).toString());
-            System.out.println("***************用户基本信息***************");
-            System.out.println("name:" + userName);
-            System.out.println("password:" + password);
-            System.out.println("登陆地址:" + ip);
-            System.out.println("登陆时间:" + (new Date()).toString());
-            System.out.println("***************用户基本信息***************");
-        }
-        @Override
-        public void run() {
-            initFiles(userName,password);
-            try {
-                SendMessage();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
-
-
-
-

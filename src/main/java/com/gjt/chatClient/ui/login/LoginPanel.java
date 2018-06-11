@@ -1,8 +1,14 @@
 package com.gjt.chatClient.ui.login;
 
+import com.gjt.chatClient.LoginClient;
+import com.gjt.chatService.entity.TCPEntity;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Socket;
+
+import static com.sun.deploy.uitoolkit.ToolkitStore.dispose;
 
 /**
  * @author 官江涛
@@ -25,6 +31,8 @@ public class LoginPanel extends JPanel implements ActionListener {
     private String userName;
 
     private String password;
+
+    private Socket socket;
 
     public LoginPanel(){
         this.setLayout(null);
@@ -53,6 +61,15 @@ public class LoginPanel extends JPanel implements ActionListener {
         logIn.setBounds(170,100,200,30);
         logIn.addActionListener(this);
         this.add(logIn);
+        try {
+            socket = new Socket(TCPEntity.conAddr, 6666);
+        } catch (Exception e) {
+            System.err.println("链接失败");
+            JOptionPane.showMessageDialog(null, "socket建立连接失败!",
+                    "错误", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -61,14 +78,14 @@ public class LoginPanel extends JPanel implements ActionListener {
         password = passwordText.getText().trim();
         String str = e.getActionCommand();
         if("登陆".equals(str)){
-//            ChatLoginClient chatLoginClient = new ChatLoginClient();
-//            chatLoginClient.setLogin(userName,password);
-//            try {
-//                // 2s时间等待后台处理完成
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e1) {
-//                e1.printStackTrace();
-//            }
+            // 开始登陆
+            Thread thread = new Thread(new LoginClient(socket,userName,password));
+            thread.start();
+            try {
+                dispose();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         }
     }
 }

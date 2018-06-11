@@ -9,20 +9,13 @@ import java.awt.*;
  * @Title: 头部
  * @date 2018/6/8/10:55
  */
-public class HeadPanel extends JPanel{
-
-    ImageIcon icon;
-    Image img;
-
-    public HeadPanel(){
-        //  /img/HomeImg.jpg 是存放在你正在编写的项目的bin文件夹下的img文件夹下的一个图片
-        icon=new ImageIcon(getClass().getResource("/image/header.png"));
-        img=icon.getImage();
-    }
+public class HeadPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        //下面这行是为了背景图片可以跟随窗口自行调整大小，可以自己设置成固定大小
-        g.drawImage(img, 0, 0,this.getWidth(), this.getHeight(), this);
+        super.paintComponent(g);
+        //绘制一张背景图片  2.jpg是图片的路径  自己设定为自己想要添加的图片
+        Image image = new ImageIcon("/com/gjt/chatClient/ui/login/image/header.png").getImage();
+        g.drawImage(image, 0, 0, this);
     }
 }

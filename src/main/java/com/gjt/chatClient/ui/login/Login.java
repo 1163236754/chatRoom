@@ -12,9 +12,11 @@ public class Login extends JFrame {
 
     public Login(){
         LoginPanel loPanel = new LoginPanel();
+        HeadPanel headPanel = new HeadPanel();
         this.setTitle("GIM");
         this.setLayout(null);
-        this.setBounds(400, 400, 600, 400);
+        this.setBounds(400, 400, 500, 400);
+        this.add(headPanel);
         this.add(loPanel);
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
