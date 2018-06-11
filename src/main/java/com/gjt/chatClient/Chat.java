@@ -125,7 +125,6 @@ public class Chat extends JFrame implements ActionListener {
             }
         });
         listPanel.add(jList);
-
         chatPanel = new JPanel();
         chatPanel.setBounds(200,0,700,700);
         chatPanel.setLayout(null);
@@ -136,12 +135,11 @@ public class Chat extends JFrame implements ActionListener {
         inputField = new JTextField();
         inputField.setBounds(10,600,580,50);
         chatPanel.add(inputField);
-        // 键盘监听事件
         contentArea = new JTextArea();
         contentArea.setBounds(10,30,680,540);
         contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
         sroll = new JScrollPane();
-        sroll.setBounds(670, 0, 10, 540);
+        sroll.setBounds(670, 30, 10, 540);
         sroll.setViewportView(contentArea);
         jLabel = new JLabel();
         jLabel.setBackground(Color.gray);
@@ -226,7 +224,7 @@ public class Chat extends JFrame implements ActionListener {
         private JTextField inputField;
         private JButton submit;
         public SendThread(JTextField inputField, JButton submit) {
-            jLabel.setText("测试2");
+            jLabel.setText("测试1");
             this.inputField = inputField;
             this.submit = submit;
             inputField.addKeyListener(new KeyListener() {
@@ -283,10 +281,10 @@ public class Chat extends JFrame implements ActionListener {
          */
         public void SendMessage(String content){
             messageEntity.setType("send");
-            messageEntity.setSender("11621380110");
-            messageEntity.setReciver("11621380111");
+            messageEntity.setSender("11621380111");
+            messageEntity.setReciver("11621380110");
             messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("测试1");
+            messageEntity.setSenderName("测试2");
             if(content!=null){
                 messageEntity.setContent(content);
                 Send();
@@ -297,10 +295,10 @@ public class Chat extends JFrame implements ActionListener {
          */
         private void connected(){
             if(isRun){
-                messageEntity.setSender("11621380110");
-                messageEntity.setReciver("11621380111");
+                messageEntity.setSender("11621380111");
+                messageEntity.setReciver("11621380110");
                 messageEntity.setSenderTime(new Date());
-                messageEntity.setSenderName("测试1");
+                messageEntity.setSenderName("测试2");
                 messageEntity.setContent("建立链接");
                 Send();
                 isRun = true;
