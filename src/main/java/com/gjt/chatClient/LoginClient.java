@@ -49,6 +49,7 @@ public class LoginClient implements Runnable{
      * @throws Exception
      */
     private  void SendMessage() throws Exception {
+
         writer = new ObjectOutputStream(connect.getOutputStream());
         writer.writeObject(loginEntity);
         writer.flush();

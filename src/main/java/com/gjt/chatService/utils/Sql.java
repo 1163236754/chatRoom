@@ -135,4 +135,17 @@ public class Sql {
         return baseSQL;
     }
 
+    /**
+     * 获取基础代码
+     * @return
+     */
+    public String BaseGetAllCounts(){
+        String baseSQL = null;
+        try {
+            baseSQL = "SELECT count(1) as counts FROM " + sqlEntity.getTableName() + " ";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseSQL;
+    }
 }

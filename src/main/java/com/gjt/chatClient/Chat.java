@@ -79,6 +79,8 @@ public class Chat extends JFrame implements ActionListener {
     private String userName;
     //  接收人
     private String revicerName;
+    //  类型
+    private String type = "send";
 
     public Chat(){
         listPanel = new JPanel();
@@ -226,22 +228,12 @@ public class Chat extends JFrame implements ActionListener {
             this.submit = submit;
             inputField.addKeyListener(new KeyListener() {
                 @Override
-                public void keyTyped(KeyEvent e) {
-
-                }
-
+                public void keyTyped(KeyEvent e) { }
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if(e.getKeyChar()==KeyEvent.VK_ENTER )
-                    {
-                        submit.doClick();
-                    }
-                }
-
+                    if(e.getKeyChar()==KeyEvent.VK_ENTER ) { submit.doClick(); } }
                 @Override
-                public void keyReleased(KeyEvent e) {
-
-                }
+                public void keyReleased(KeyEvent e) { }
             });
             submit.addActionListener(new ActionListener() {
                 @Override
@@ -277,7 +269,7 @@ public class Chat extends JFrame implements ActionListener {
          * 用户输入框
          */
         public void SendMessage(String content){
-            messageEntity.setType("send");
+            messageEntity.setType(type);
             messageEntity.setSender(userName);
             messageEntity.setReciver(revicerName);
             messageEntity.setSenderTime(new Date());

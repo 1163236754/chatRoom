@@ -3,6 +3,8 @@ package com.gjt.chatService.action;
 import com.gjt.chatService.entity.LoginEntity;
 import com.gjt.chatService.service.LoginService;
 
+import java.util.Map;
+
 /**
  * @author 官江涛
  * @version 1.0
@@ -16,9 +18,9 @@ public class LoginAction {
      * @param userSetting
      * @return
      */
-    public int validPassWord(LoginEntity userSetting){
+    public Map<String,Object> validPassWord(LoginEntity userSetting){
         LoginService loginService = new LoginService();
-        int result = loginService.Login(userSetting);
+        Map<String,Object> result = loginService.Login(userSetting);
         return result;
     }
 }

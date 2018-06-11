@@ -32,18 +32,18 @@ public class MainAction {
         type.put(fields[0].getName(),fields[0].get(object).toString());
         if(type.get("type").equals("Login")){
             LoginAction loginAction = new LoginAction();
-            int value = loginAction.validPassWord((LoginEntity) object);
-            if(value == 1){
+            Map<String,Object> value = loginAction.validPassWord((LoginEntity) object);
+            if(value != null){
                 ResponseEntity responseEntity = new ResponseEntity();
                 responseEntity.setStatusCode("200");
                 responseEntity.setResponseContent("登陆成功");
+                responseEntity.setLoginMessage(value);
                 result.add(responseEntity);
                 return result;
             }else {
                 ResponseEntity responseEntity = new ResponseEntity();
                 responseEntity.setStatusCode("201");
                 responseEntity.setResponseContent("登陆失败");
-                result.add(responseEntity);
                 result.add(responseEntity);
                 return result;
             }

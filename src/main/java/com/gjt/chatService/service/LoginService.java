@@ -19,7 +19,7 @@ public class LoginService {
      * @param loginEntity
      * @return
      */
-    public int Login(LoginEntity loginEntity){
+    public Map<String,Object> Login(LoginEntity loginEntity){
         LoginDao loginDao = new LoginDaoImpl();
         Map<String,Object> result = loginDao.VerificationLogin(loginEntity.getUserName());
 
@@ -32,14 +32,14 @@ public class LoginService {
             }else {
                 System.out.println("发生错误!"+"状态:"+"登陆失败");
             }
-            return 1;
+            return result;
         }else {
             if(!password.equals(loginEntity.getPassword())){
                 System.out.println("密码错误");
             }else if(Integer.parseInt(result.get("is_login").toString()) == 1){
                 System.out.println("账号已登陆");
             }
-            return 0;
+            return null;
         }
 
     }

@@ -1,5 +1,8 @@
 package com.gjt.chatService.dao;
 
+import com.gjt.chatService.entity.UserEntity;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,6 +17,17 @@ public interface LoginDao {
      * @return
      */
     Map<String,Object> VerificationLogin(String username);
-
+    /**
+     * 登陆成功之后修改对应用户名的登陆状态便于我们查找
+     * @param username
+     * @return
+     */
     int ChangeStatus(String username);
+    /**
+     * 获取在线人数
+     * @return
+     */
+    int getOnlineCounts();
+
+
 }

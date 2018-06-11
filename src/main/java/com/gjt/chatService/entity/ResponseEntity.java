@@ -4,6 +4,7 @@ import com.gjt.chat.entity.ChatMessage;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 官江涛
@@ -25,6 +26,14 @@ public class ResponseEntity implements Serializable {
      * 群消息
      */
     private List<ReturnMessageEntity> chatGroupmessages;
+    /**
+     * 登陆消息
+     */
+    private Map<String,Object> loginMessage;
+    /**
+     * 在线人数
+     */
+    private int onlineNum;
 
     public String getStatusCode() {
         return statusCode;
@@ -56,5 +65,21 @@ public class ResponseEntity implements Serializable {
 
     public void setChatGroupmessages(List<ReturnMessageEntity> chatGroupmessages) {
         this.chatGroupmessages = chatGroupmessages;
+    }
+
+    public Map<String, Object> getLoginMessage() {
+        return loginMessage;
+    }
+
+    public void setLoginMessage(Map<String, Object> loginMessage) {
+        this.loginMessage = loginMessage;
+    }
+
+    public int getOnlineNum() {
+        return onlineNum;
+    }
+
+    public void setOnlineNum(int onlineNum) {
+        this.onlineNum = onlineNum;
     }
 }
