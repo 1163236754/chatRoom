@@ -1,6 +1,7 @@
 package com.gjt.chatClient;
 
 //import com.gjt.chatClient.ui.chatui.ChatPanel;
+
 import com.gjt.chatService.entity.LoginEntity;
 import com.gjt.chatService.entity.MessageEntity;
 import com.gjt.chatService.entity.ResponseEntity;
@@ -72,6 +73,8 @@ public class Chat extends JFrame implements ActionListener {
 
     private JPanel listPanel;
     private JPanel chatPanel;
+
+    private JScrollPane sroll;
     // 消息实体封装
     private MessageEntity messageEntity ;
 
@@ -137,11 +140,15 @@ public class Chat extends JFrame implements ActionListener {
         contentArea = new JTextArea();
         contentArea.setBounds(10,30,680,540);
         contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
+        sroll = new JScrollPane();
+        sroll.setBounds(670, 0, 10, 540);
+        sroll.setViewportView(contentArea);
         jLabel = new JLabel();
         jLabel.setBackground(Color.gray);
         jLabel.setText("这是个测试label");
         jLabel.setFont(new   java.awt.Font("Dialog",   1,   17));
         jLabel.setBounds(10,0,680,30);
+        chatPanel.add(sroll);
         chatPanel.add(contentArea);
         chatPanel.add(jLabel);
         this.setTitle("GIM");
@@ -159,7 +166,6 @@ public class Chat extends JFrame implements ActionListener {
 
 
     public void StartThread(){
-        connected();
         send =  new Thread(new SendThread(inputField,submit));
         send.start();
         isRun = true;
@@ -171,48 +177,8 @@ public class Chat extends JFrame implements ActionListener {
         Chat chat = new Chat();
         chat.StartThread();
     }
-    /**
-     * 发送消息
-     */
-    public void Send() {
-        try {
-            String ip = InetAddress.getLocalHost().getHostAddress();
-            try {
-                writer = new ObjectOutputStream(connect.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if(messageEntity.getContent() != null){
-                messageEntity.setSenderIp(ip);
-                writer.writeObject(messageEntity);
-                writer.flush();
-            }
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-        return ;
-    }
-    /**
-     * 建立链接
-     */
-    private void connected(){
-        if(!isRun){
-            messageEntity.setType("conn");
-            messageEntity.setSender("11621380110");
-            messageEntity.setReciver("11621380111");
-            messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("测试1");
-            messageEntity.setContent("建立链接");
-            Send();
-            isRun = true;
-            System.out.println("链接成功");
-        }else {
-            isRun = false;
-            System.out.println("链接失败,重新建立链接,或者链接已经建立");
-            connected();
-        }
-        return ;
-    }
+
+
     // 终止线程
     public synchronized boolean closeConnection() {
         try {
@@ -257,8 +223,8 @@ public class Chat extends JFrame implements ActionListener {
     }
 
     class SendThread implements Runnable{
-        JTextField inputField;
-        JButton submit;
+        private JTextField inputField;
+        private JButton submit;
         public SendThread(JTextField inputField, JButton submit) {
             jLabel.setText("测试2");
             this.inputField = inputField;
@@ -292,6 +258,27 @@ public class Chat extends JFrame implements ActionListener {
             });
         }
         /**
+         * 发送消息
+         */
+        public void Send() {
+            try {
+                String ip = InetAddress.getLocalHost().getHostAddress();
+                try {
+                    writer = new ObjectOutputStream(connect.getOutputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(messageEntity.getContent() != null){
+                    messageEntity.setSenderIp(ip);
+                    writer.writeObject(messageEntity);
+                    writer.flush();
+                }
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+            return ;
+        }
+        /**
          * 用户输入框
          */
         public void SendMessage(String content){
@@ -305,9 +292,30 @@ public class Chat extends JFrame implements ActionListener {
                 Send();
             }
         }
+        /**
+         * 建立链接
+         */
+        private void connected(){
+            if(isRun){
+                messageEntity.setSender("11621380110");
+                messageEntity.setReciver("11621380111");
+                messageEntity.setSenderTime(new Date());
+                messageEntity.setSenderName("测试1");
+                messageEntity.setContent("建立链接");
+                Send();
+                isRun = true;
+                System.out.println("链接成功");
+            }else {
+                isRun = false;
+                System.out.println("链接失败,重新建立链接,或者链接已经建立");
+                connected();
+            }
+            return ;
+        }
         @Override
         public void run() {
             System.out.println("发送线程启动");
+            connected();
         }
     }
 
@@ -331,7 +339,6 @@ public class Chat extends JFrame implements ActionListener {
         public void Recevice() throws Exception {
             Object message =  reader.readObject();
             List<ResponseEntity> responseEntities = (List<ResponseEntity>)message;
-//            ReturnMessageEntity  returnMessageEntity = (ReturnMessageEntity)message;
             if(responseEntities != null){
                 PrintMessage(responseEntities);
             }
