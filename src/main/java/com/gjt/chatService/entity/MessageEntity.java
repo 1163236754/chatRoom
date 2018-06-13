@@ -21,6 +21,7 @@ public class MessageEntity implements Serializable{
      * groupMessage 向数据库请求消息       1
      * sendGroup    发送群消息
      * requestFriendList  请求好友列表     1
+     * addFriend   加好友
      */
     private String type;
     /**
@@ -30,6 +31,7 @@ public class MessageEntity implements Serializable{
     /**
      * 接收人名称
      * 可以是人或者群
+     * 或者请求的好友
      */
     private String reciver;
     /**

@@ -146,7 +146,12 @@ public class MainAction {
     private List<ResponseEntity> RequestFriendList(Object object){
         List<ResponseEntity> result = new ArrayList<>();
         UserAction userAction = new UserAction();
-        GetEntity getEntity = (GetEntity)object;
+        MessageEntity messageEntity = (MessageEntity) object;
+        GetEntity getEntity = new GetEntity();
+        // 设置登陆账号
+        getEntity.setIsLoginId(messageEntity.getSender());
+        // 设置请求类型
+        getEntity.setType("requestFriendList");
         List<UserEntity> userList = userAction.GetOnlineInformation(getEntity.getIsLoginId());
         if(userList != null){
             ResponseEntity responseEntity = new ResponseEntity();
@@ -172,7 +177,12 @@ public class MainAction {
     private List<ResponseEntity> RequestAddNewFriends(Object object){
         List<ResponseEntity> result = new ArrayList<>();
         UserAction userAction = new UserAction();
-        int value = userAction.AddFriend((AddFriendEntity)object);
+        MessageEntity messageEntity = (MessageEntity) object;
+        AddFriendEntity addFriendEntity = new AddFriendEntity();
+        addFriendEntity.setFriendId(messageEntity.getReciver());
+        addFriendEntity.setUserId(messageEntity.getSender());
+        addFriendEntity.setType("addFriend");
+        int value = userAction.AddFriend(addFriendEntity);
         if(value == 1){
             ResponseEntity responseEntity = new ResponseEntity();
             responseEntity.setStatusCode("200");

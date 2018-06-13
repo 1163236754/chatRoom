@@ -376,17 +376,19 @@ public class MultUserService extends JFrame{
                         for (int i = 0; i < clients.size() ; i++) {
                             // 如果当前链接是改链接则向map中插入一组数据
                             if (clients.get(i) == this){
-                                listModel.addElement(messageEntity.getSenderName().toString());// 更新在线列表
-                                contentArea.append(type.get("sender").toString() + "上线!\r\n");
+                                if(AddLogin(messageEntity.getSenderName().toString())){
+                                    // 更新在线列表
+                                    listModel.addElement(messageEntity.getSenderName().toString());
+                                }
+                                contentArea.append(messageEntity.getSenderName().toString() + "上线!\r\n");
                                 clientMap.put(type.get("sender").toString(), clients.get(i));
                             }
                         }
-                        // 将对象通过反射技术转换成map
+                        // 请求数据库
+                        MainAction mainAction = new MainAction();
+                        result =  mainAction.DealWithAction(message);
                         // 如果是sendGroup 则群发消息
                         if(type.get("type").equals("sendGroup")){
-                            // 请求数据库
-                            MainAction mainAction = new MainAction();
-                            result =  mainAction.DealWithAction(message);
                             resultValue = toObject(message);
                             // Map转成对象
                             returnMessageEntity = getMapToObj(resultValue);
@@ -394,9 +396,6 @@ public class MultUserService extends JFrame{
                             SendToMessage(getReturnMessageEntity());
                             // 如果是send则单发
                         }else if (type.get("type").equals("send")){
-                            // 请求数据库
-                            MainAction mainAction = new MainAction();
-                            result = mainAction.DealWithAction(message);
                             resultValue = toObject(message);
                             // Map转成对象
                             returnMessageEntity = getMapToObj(resultValue);
@@ -404,9 +403,6 @@ public class MultUserService extends JFrame{
                         }else if (type.get("type").equals("conn")){
                             contentArea.append("链接成功\n");
                         }else {
-                            // 请求数据库
-                            MainAction mainAction = new MainAction();
-                            result = mainAction.DealWithAction(message);
                             writer.writeObject(result);
                             writer.flush();
                         }
@@ -472,6 +468,20 @@ public class MultUserService extends JFrame{
             returnMessageEntity.setName(resultValue.get("senderName").toString());
             returnMessageEntity.setContent(resultValue.get("content").toString());
             return returnMessageEntity;
+        }
+
+        private Boolean AddLogin(String str){
+            if(listModel != null){
+                for (int i = 0; i < listModel.getSize(); i++) {
+                    if(listModel.get(i).equals(str)){
+                        return false;
+                    }
+                }
+                // 遍历完成之后都没有这个数据，则可以确定
+                return true;
+            }else {
+                return true;
+            }
         }
     }
     /**

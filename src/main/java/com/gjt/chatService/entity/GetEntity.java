@@ -13,10 +13,14 @@ public class GetEntity implements Serializable{
     /**
      * type用于判断数据类型
      * 分为
+     * 其中标号为1的是获取消息
+     * 未标号的为发送消息
      * send     发送消息给数据库
-     * request  向数据库请求消息
-     * groupMessage 向数据库请求消息
+     * request  向数据库请求消息           1
+     * groupMessage 向数据库请求消息       1
      * sendGroup    发送群消息
+     * requestFriendList  请求好友列表     1
+     * addFriend   加好友
      */
     private String type;
     /**
