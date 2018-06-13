@@ -183,7 +183,7 @@ public class MultUserService extends JFrame{
         responseEntity.setChatGroupmessages(returnMessageEntities);
         responseEntities.add(responseEntity);
         contentArea.append("客户端"+"发送了一条消息\n");
-        for (int i = clients.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < clients.size(); i++) {
             try {
                 clients.get(i).getObjectOutputStream().writeObject(responseEntities);
                 clients.get(i).getObjectOutputStream().flush();
@@ -193,7 +193,6 @@ public class MultUserService extends JFrame{
         }
 
     }
-
     /**
      * 私聊
      * @param message
@@ -240,7 +239,6 @@ public class MultUserService extends JFrame{
             Date dt = new Date();
             SimpleDateFormat sdf2= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             contentArea.append("启动成功\n"+"当前时间："+sdf2.format(dt)+"\n");
-//            System.out.println("启动成功");
         } catch (BindException e) {
             isStart = false;
             try {
@@ -320,6 +318,7 @@ public class MultUserService extends JFrame{
         public ChatServer(Socket socket) {
             this.socket = socket;
             try {
+                writer = new ObjectOutputStream(socket.getOutputStream());
                 returnMessageEntity = new ReturnMessageEntity();
                 returnMessageEntities = new ArrayList<>();
                 messageEntity = new MessageEntity();
@@ -357,14 +356,12 @@ public class MultUserService extends JFrame{
             // 发过来的对象中间包含的值
             Map<String,Object> resultValue = null;
             contentArea.append("[服务器消息]"+socket.getInetAddress()+"接入成功\n");
-//            System.out.println("[服务器消息]"+socket.getInetAddress()+"接入成功");
             while (true){
                 try {
                     reader = new ObjectInputStream(socket.getInputStream());
                     message =  reader.readObject();
                     messageEntity = (MessageEntity)message;
                     if (message!=null){
-                        // 转为常规消息对象
                         // 解析对象
                         Class objectClass = message.getClass();
                         Field[] fields = objectClass.getDeclaredFields();
@@ -407,7 +404,6 @@ public class MultUserService extends JFrame{
                         }else if (type.get("type").equals("conn")){
                             contentArea.append("链接成功\n");
                         }else {
-                            writer = new ObjectOutputStream(socket.getOutputStream());
                             // 请求数据库
                             MainAction mainAction = new MainAction();
                             result = mainAction.DealWithAction(message);
@@ -488,7 +484,6 @@ public class MultUserService extends JFrame{
         public ServerThread(ServerSocket serverSocket) {
             this.serverSocket = serverSocket;
         }
-
         @Override
         public void run() {
             // 不停的等待客户端的链接
@@ -504,10 +499,12 @@ public class MultUserService extends JFrame{
             }
         }
     }
+//    public void StartServerService() {
+//        // 启动GUI
+//        MultUserService server = new MultUserService();
+//    }
 
-    public void StartServerService() {
-        // 启动GUI
+    public static void main(String[] args) {
         MultUserService server = new MultUserService();
     }
-
 }

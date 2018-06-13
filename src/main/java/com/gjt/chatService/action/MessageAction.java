@@ -2,7 +2,7 @@ package com.gjt.chatService.action;
 
 import com.gjt.chat.entity.ChatGroupmessage;
 import com.gjt.chat.entity.ChatMessage;
-import com.gjt.chatService.entity.GetMessageEntity;
+import com.gjt.chatService.entity.GetEntity;
 import com.gjt.chatService.entity.Message;
 import com.gjt.chatService.entity.MessageEntity;
 import com.gjt.chatService.service.MessageService;
@@ -60,20 +60,20 @@ public class MessageAction {
      * 接收消息
      * @return
      */
-    public List<ChatMessage> MessageReciveAction(GetMessageEntity getMessageEntity){
+    public List<ChatMessage> MessageReciveAction(GetEntity getEntity){
         MessageService messageService = new MessageService();
-        List<ChatMessage> list = messageService.MessageReciveService(getMessageEntity);
+        List<ChatMessage> list = messageService.MessageReciveService(getEntity);
         return list;
     }
 
     /**
      * 接收群消息
-     * @param getMessageEntity
+     * @param getEntity
      * @return
      */
-    public List<ChatGroupmessage> MessageReciveGroupAction(GetMessageEntity getMessageEntity){
+    public List<ChatGroupmessage> MessageReciveGroupAction(GetEntity getEntity){
         MessageService messageService = new MessageService();
-        List<ChatGroupmessage> list = messageService.MessageReciveGroupAction(getMessageEntity);
+        List<ChatGroupmessage> list = messageService.MessageReciveGroupAction(getEntity);
         return list;
     }
 }

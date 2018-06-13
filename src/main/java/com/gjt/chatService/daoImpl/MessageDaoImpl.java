@@ -71,11 +71,11 @@ public class MessageDaoImpl implements MessageDao{
     }
     /**
      * 接受消息
-     * @param getMessageEntity
+     * @param getEntity
      * @return
      */
     @Override
-    public List<ChatMessage> ReciveMessage(GetMessageEntity getMessageEntity) {
+    public List<ChatMessage> ReciveMessage(GetEntity getEntity) {
         // 启动工具
         SqlEntity sqlEntity = new SqlEntity();
         // 设置where条件的Id
@@ -83,7 +83,7 @@ public class MessageDaoImpl implements MessageDao{
         // 设置表
         sqlEntity.setTableName(KeyWord.DB_chat_offlinemessage);
         // 设置where条件的内容
-        sqlEntity.setContent("'"+getMessageEntity.getIsLoginId()+"'");
+        sqlEntity.setContent("'"+ getEntity.getIsLoginId()+"'");
         // 启动sql生成工具
         Sql baseSQL = new Sql(sqlEntity);
         String sql = null;
@@ -114,7 +114,7 @@ public class MessageDaoImpl implements MessageDao{
             // 删除数据库中对应数据
             sqlEntity.setId("reciver");
             sqlEntity.setTableName(KeyWord.DB_chat_offlinemessage);
-            sqlEntity.setContent("'"+getMessageEntity.getIsLoginId()+"'");
+            sqlEntity.setContent("'"+ getEntity.getIsLoginId()+"'");
             try {
                 sql = baseSQL.BaseDeleteSQL() + baseSQL.BaseWhereSQL();
                 System.out.println("生成的SQL语句是："+sql);
@@ -134,16 +134,16 @@ public class MessageDaoImpl implements MessageDao{
     }
     /**
      *  查看群历史消息
-     * @param getMessageEntity
+     * @param getEntity
      * @return
      */
     @Override
-    public List<ChatGroupmessage> MessageReciveGroupAction(GetMessageEntity getMessageEntity) {
+    public List<ChatGroupmessage> MessageReciveGroupAction(GetEntity getEntity) {
         // 启动工具
         SqlEntity sqlEntity = new SqlEntity();
         // 设置where条件的Id
         sqlEntity.setId("groupNumber");
-        sqlEntity.setContent("'"+getMessageEntity.getGroupId()+"'");
+        sqlEntity.setContent("'"+ getEntity.getGroupId()+"'");
         Sql baseSQL = new Sql(sqlEntity);
         // 设置sql语句
         String sql = "SELECT cuf.name,cg.content,cg.send_time FROM `chat_offlinegroupmessage` cg LEFT JOIN chat_userinformation cuf ON cg.sender = cuf.stu_id" + baseSQL.BaseWhereSQL();

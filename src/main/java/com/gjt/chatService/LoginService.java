@@ -1,7 +1,6 @@
 package com.gjt.chatService;
 
 import com.gjt.chatService.action.MainAction;
-import com.gjt.chatService.entity.LoginEntity;
 import com.gjt.chatService.entity.ResponseEntity;
 
 import java.io.IOException;
@@ -80,16 +79,25 @@ public class LoginService{
                         }
                         System.out.println("[系统通知：]"+tips);
                         if(tips.equals("登陆成功")){
-                            MultUserService multUserService = new MultUserService();
-                            multUserService.StartServerService();
+//                            MultUserService multUserService = new MultUserService();
                             // 你猜为什么要延迟。。哈哈哈，当然是为了给我时间让我来得及点启动
-                            Thread.sleep(3000);
+                            Thread.sleep(100);
+                            writer = new ObjectOutputStream(socket.getOutputStream());
+                            writer.writeObject(result);
+                            writer.flush();
+                            reader.close();
+                            writer.close();
+                            socket.close();
                         }else {
                             System.err.println("响应失败！请检查用户名和密码！");
+                            writer = new ObjectOutputStream(socket.getOutputStream());
+                            writer.writeObject(result);
+                            writer.flush();
+                            reader.close();
+                            writer.close();
+                            socket.close();
                         }
-                        writer = new ObjectOutputStream(socket.getOutputStream());
-                        writer.writeObject(result);
-                        writer.flush();
+
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -98,15 +106,6 @@ public class LoginService{
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    reader.close();
-                    writer.close();
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
             }
         }
     }
@@ -123,6 +122,7 @@ public class LoginService{
         @Override
         public void run() {
             try {
+                System.out.println("服务端启动");
                 socket = serverSocket.accept();
                 LoginThread loginThread = new LoginThread(socket);
                 loginThread.start();

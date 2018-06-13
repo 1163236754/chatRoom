@@ -25,7 +25,7 @@ public class LoginService {
 
         MessageUtils messageUtils = new MessageUtils();
         String password = messageUtils.decryptByBase64(result.get("password_encrypted").toString());
-        if(password.equals(loginEntity.getPassword())&&(Integer.parseInt(result.get("is_login").toString()) == 0)){
+        if(password.equals(loginEntity.getPassword())){
             int changeStatus = loginDao.ChangeStatus(loginEntity.getUserName());
             if(changeStatus == 1){
                 System.out.println("登陆成功!"+"状态:"+"已登陆");

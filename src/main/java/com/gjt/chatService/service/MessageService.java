@@ -4,7 +4,7 @@ import com.gjt.chat.entity.ChatGroupmessage;
 import com.gjt.chat.entity.ChatMessage;
 import com.gjt.chatService.dao.MessageDao;
 import com.gjt.chatService.daoImpl.MessageDaoImpl;
-import com.gjt.chatService.entity.GetMessageEntity;
+import com.gjt.chatService.entity.GetEntity;
 import com.gjt.chatService.entity.Message;
 
 import java.util.List;
@@ -39,22 +39,22 @@ public class MessageService {
     /**
      * 接收消息（个人消息）
      * @return
-     * @param getMessageEntity
+     * @param getEntity
      */
-    public List<ChatMessage> MessageReciveService(GetMessageEntity getMessageEntity){
+    public List<ChatMessage> MessageReciveService(GetEntity getEntity){
         MessageDao messageDao = new MessageDaoImpl();
-        List<ChatMessage> list = messageDao.ReciveMessage(getMessageEntity);
+        List<ChatMessage> list = messageDao.ReciveMessage(getEntity);
         return list;
     }
 
     /**
      * 接收群消息
-     * @param getMessageEntity
+     * @param getEntity
      * @return
      */
-    public List<ChatGroupmessage> MessageReciveGroupAction(GetMessageEntity getMessageEntity){
+    public List<ChatGroupmessage> MessageReciveGroupAction(GetEntity getEntity){
         MessageDao messageDao = new MessageDaoImpl();
-        List<ChatGroupmessage> list = messageDao.MessageReciveGroupAction(getMessageEntity);
+        List<ChatGroupmessage> list = messageDao.MessageReciveGroupAction(getEntity);
         return list;
     }
 }

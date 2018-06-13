@@ -34,7 +34,8 @@ public class LoginPanel extends JPanel implements ActionListener {
 
     private Socket socket;
 
-    public LoginPanel(){
+
+    public LoginPanel( ){
         this.setLayout(null);
         this.setBounds(0, 150, 600, 250);
         // 账号标签
@@ -79,7 +80,7 @@ public class LoginPanel extends JPanel implements ActionListener {
         String str = e.getActionCommand();
         if("登陆".equals(str)){
             // 开始登陆
-            Thread thread = new Thread(new LoginClient(socket,userName,password));
+            Thread thread = new Thread(new LoginClient());
             thread.start();
             try {
                 dispose();

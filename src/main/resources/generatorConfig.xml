@@ -35,7 +35,7 @@
 		</javaClientGenerator>
 
 
-        <table tableName="chat_groupmessage" domainObjectName="ChatGroupmessage"
+        <table tableName="chat_friendlist" domainObjectName="ChatFriendlist"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">

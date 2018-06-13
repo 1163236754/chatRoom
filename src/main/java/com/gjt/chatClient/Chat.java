@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 官江涛
@@ -55,9 +56,9 @@ public class Chat extends JFrame implements ActionListener {
     // 列表
     private JList jList;
     // 全局列表 好友
-    private String[] list1;
+    private String[] friend;
     // 全局列表 群
-    private String[] list2;
+    private String[] group;
     // 点击的名称
     private  String clickName;
     // 发送
@@ -76,15 +77,21 @@ public class Chat extends JFrame implements ActionListener {
     // 消息实体封装
     private MessageEntity messageEntity ;
     // 发送人
-    private String userName;
+    private String userName = "11621380110";
     //  接收人
     private String revicerName;
     //  类型
     private String type = "send";
+    // 目标标题
+    private String targetTitle;
+    // 目标标题
+    private String senderName;
+    // 头部
+    private JPanel header;
 
     public Chat(){
         listPanel = new JPanel();
-        listPanel.setBounds(0,0,200,700);
+        listPanel.setBounds(0,20,200,500);
         listPanel.setLayout(null);
         // 好友列表
         friendList = new JButton();
@@ -96,7 +103,7 @@ public class Chat extends JFrame implements ActionListener {
         listPanel.add(friendList);
         // 群消息列表
         groupList = new JButton();
-        groupList.setText("群消息列表");
+        groupList.setText("群列表");
         // 让按钮上的字完全显示
         groupList.setMargin(new java.awt.Insets(0,0,0,0));
         groupList.setBounds(100,20,80,30);
@@ -104,6 +111,10 @@ public class Chat extends JFrame implements ActionListener {
         listPanel.add(groupList);
         // 展示好友列表
         listModel = new DefaultListModel();
+        friend = new String[]{"好友一", "好友二", "好友三", "好友四"};
+        for (int i = 0; i < friend.length; i++) {
+            listModel.addElement(friend[i]);
+        }
         jList = new JList(listModel);
         jList.setBounds(10,60,180,620);
         // 设置一下首选大小
@@ -121,6 +132,7 @@ public class Chat extends JFrame implements ActionListener {
                 // 输出选中的选项
                 for (int index : indices) {
                     revicerName = listModel.getElementAt(index);
+                    type = "sendGroup";
                     System.out.println("选中: " + index + " = " + listModel.getElementAt(index));
                 }
                 System.out.println();
@@ -141,17 +153,19 @@ public class Chat extends JFrame implements ActionListener {
         contentArea = new JTextArea();
         contentArea.setBounds(10,30,680,540);
         contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
-        sroll = new JScrollPane();
-        sroll.setBounds(670, 0, 10, 540);
-        sroll.setViewportView(contentArea);
+        JScrollPane scroll = new JScrollPane(contentArea);
+        scroll.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         jLabel = new JLabel();
         jLabel.setBackground(Color.gray);
         jLabel.setText("这是个测试label");
         jLabel.setFont(new   java.awt.Font("Dialog",   1,   17));
         jLabel.setBounds(10,0,680,30);
-        chatPanel.add(sroll);
         chatPanel.add(contentArea);
         chatPanel.add(jLabel);
+        header = new JPanel();
         this.setTitle("GIM");
         this.setLayout(null);
         this.setBounds(700, 200, 900, 700);
@@ -164,9 +178,11 @@ public class Chat extends JFrame implements ActionListener {
         messageEntity = new MessageEntity();
         connect = conn.ConnectTcpClient();
     }
-    public void StartThread(String userName){
+    public void StartThread(String userName, Map<String, Object> loginMessage){
         // 完成初始消息封装
         this.userName = userName;
+        senderName = loginMessage.get("name").toString();
+        System.out.println("发送人名称："+senderName);
         send =  new Thread(new SendThread(inputField,submit));
         send.start();
         isRun = true;
@@ -203,16 +219,18 @@ public class Chat extends JFrame implements ActionListener {
         String inputText = inputField.getText().trim();
         if(str.equals("好友列表")){
             System.out.println(str);
-            list1 = new String[]{"好友一", "好友二", "好友三", "好友四"};
+            friend = new String[]{"好友一", "好友二", "好友三", "好友四"};
             listModel.removeAllElements();
-            for (int i = 0; i < list1.length; i++) {
-                listModel.addElement(list1[i]);
+            for (int i = 0; i < friend.length; i++) {
+                listModel.addElement(friend[i]);
             }
-        }else if (str.equals("好友列表")){
-            list2 = new String[]{"测试群一", "测试群二", "测试群三", "测试群四"};
+        }else if (str.equals("群列表")){
+            revicerName = userName.substring(0,9);
+            System.out.println("设置群名称：" + revicerName);
+            group = new String[]{revicerName};
             listModel.removeAllElements();
-            for (int i = 0; i < list2.length; i++) {
-                listModel.addElement(list2[i]);
+            for (int i = 0; i < group.length; i++) {
+                listModel.addElement(group[i]);
             }
         }
     }
@@ -221,9 +239,11 @@ public class Chat extends JFrame implements ActionListener {
         // 输入框
         private JTextField inputField;
         // 按钮发送按钮
+
         private JButton submit;
         public SendThread(JTextField inputField, JButton submit) {
-            jLabel.setText("测试2");
+            // 暂时只做显示账号
+            jLabel.setText(revicerName);
             this.inputField = inputField;
             this.submit = submit;
             inputField.addKeyListener(new KeyListener() {
@@ -269,11 +289,12 @@ public class Chat extends JFrame implements ActionListener {
          * 用户输入框
          */
         public void SendMessage(String content){
+            isRun = true;
             messageEntity.setType(type);
             messageEntity.setSender(userName);
             messageEntity.setReciver(revicerName);
             messageEntity.setSenderTime(new Date());
-            messageEntity.setSenderName("测试1");
+            messageEntity.setSenderName(senderName);
             if(content!=null){
                 messageEntity.setContent(content);
                 Send();
@@ -284,13 +305,14 @@ public class Chat extends JFrame implements ActionListener {
          */
         private void connected(){
             if(isRun){
+//                messageEntity.setType("conn");
                 messageEntity.setSender(userName);
                 messageEntity.setReciver(revicerName);
                 messageEntity.setSenderTime(new Date());
-                messageEntity.setSenderName("测试1");
+                messageEntity.setSenderName(senderName);
                 messageEntity.setContent("建立链接");
                 Send();
-                isRun = true;
+
                 System.out.println("链接成功");
             }else {
                 isRun = false;
@@ -302,13 +324,13 @@ public class Chat extends JFrame implements ActionListener {
         @Override
         public void run() {
             System.out.println("发送线程启动");
-            connected();
+//            connected();
         }
     }
 
     class ReceiveThread implements Runnable {
         private Socket client;
-        private boolean isRun = true;
+
 
         public ReceiveThread(Socket client) {
             this.client = client;
@@ -319,17 +341,20 @@ public class Chat extends JFrame implements ActionListener {
             }
         }
 
+        public ObjectInputStream getObjectInputStream(){
+            return reader;
+        }
         /**
          * 消息接收
          * @throws Exception
          */
         public void Recevice() throws Exception {
-            Object message =  reader.readObject();
-            List<ResponseEntity> responseEntities = (List<ResponseEntity>)message;
+            List<ResponseEntity> responseEntities = (List<ResponseEntity>)getObjectInputStream().readObject();
             if(responseEntities != null){
                 PrintMessage(responseEntities);
             }
             return;
+
         }
 
         /**
@@ -376,4 +401,9 @@ public class Chat extends JFrame implements ActionListener {
             }
         }
     }
+
+//    public static void main(String[] args) {
+//        Chat chat = new Chat();
+//        chat.StartThread();
+//    }
 }

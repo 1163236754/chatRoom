@@ -30,6 +30,8 @@ public class KeyWord {
 
     public static final String DB_chat_offlinegroupmessage = "chat_offlinegroupmessage";
 
+    public static final String DB_chat_friendlist = "chat_friendlist";
+
     /*----end----数据库表----end----*/
 
     public static final String sucess = "处理成功";

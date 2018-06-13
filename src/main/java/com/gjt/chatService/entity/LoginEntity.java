@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public class LoginEntity implements Serializable{
 
-    public String type = "Login";
+    public String type = "login";
 
     /**
      * 账号

@@ -1,55 +1,63 @@
 package com.gjt.chat.entity;
 
-import java.util.Date;
-
 public class ChatFriendlist {
-    private Integer id;
+//    private Integer id;
 
-    private String friendGroup;
+    private String friendid;
 
-    private Integer userId;
+    private String friend_group;
 
-    private Date createdAt;
+    private String userid;
 
-    private Date updatedAt;
+//    private Date createdAt;
+//
+//    private Date updatedAt;
 
-    public Integer getId() {
-        return id;
+//    public Integer getId() {
+//        return id;
+//    }
+//
+//    public void setId(Integer id) {
+//        this.id = id;
+//    }
+
+    public String getFriendid() {
+        return friendid;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setFriendid(String friendid) {
+        this.friendid = friendid == null ? null : friendid.trim();
     }
 
     public String getFriendGroup() {
-        return friendGroup;
+        return friend_group;
     }
 
     public void setFriendGroup(String friendGroup) {
-        this.friendGroup = friendGroup == null ? null : friendGroup.trim();
+        this.friend_group = friendGroup == null ? null : friendGroup.trim();
     }
 
-    public Integer getUserId() {
-        return userId;
+    public String getUserid() {
+        return userid;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserid(String userid) {
+        this.userid = userid == null ? null : userid.trim();
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+//    public Date getCreatedAt() {
+//        return createdAt;
+//    }
+//
+//    public void setCreatedAt(Date createdAt) {
+//        this.createdAt = createdAt;
+//    }
+//
+//    public Date getUpdatedAt() {
+//        return updatedAt;
+//    }
+//
+//    public void setUpdatedAt(Date updatedAt) {
+//        this.updatedAt = updatedAt;
+//    }
 }

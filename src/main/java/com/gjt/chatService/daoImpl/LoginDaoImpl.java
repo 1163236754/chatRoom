@@ -29,11 +29,11 @@ public class LoginDaoImpl implements LoginDao{
     @Override
     public Map<String,Object> VerificationLogin(String username) {
         SqlEntity sqlEntity = new SqlEntity();
-        sqlEntity.setTableName(KeyWord.DB_chat_loginmessage);
-        sqlEntity.setId("username");
+        sqlEntity.setTableName(KeyWord.DB_chat_userinformation);
+        sqlEntity.setId("stu_id");
         sqlEntity.setContent(username);
         Sql baseSQL = new Sql(sqlEntity);
-        String sql = baseSQL.BaseSelectSQL();
+        String sql = baseSQL.BaseSelectSQL()+baseSQL.BaseWhereSQL();
         return sqlUtils.Query(sql);
     }
 
@@ -67,6 +67,24 @@ public class LoginDaoImpl implements LoginDao{
         Sql baseSQL = new Sql(sqlEntity);
         String sql = baseSQL.BaseGetAllCounts() + baseSQL.BaseWhereSQL();
         return 0;
+    }
+    /**
+     * 修改登陆状态，离线
+     * @param username
+     * @return
+     */
+    @Override
+    public int LoginOut(String username) {
+        SqlEntity sqlEntity = new SqlEntity();
+        /**
+         * 设置表名称
+         */
+        sqlEntity.setTableName(KeyWord.DB_chat_loginmessage);
+        sqlEntity.setId("username");
+        sqlEntity.setContent(username);
+        Sql baseSQL = new Sql(sqlEntity);
+        String sql = baseSQL.BaseUpdate() + "is_login = 0 " +baseSQL.BaseWhereSQL();
+        return sqlUtils.Update(sql);
     }
 
 }

@@ -77,6 +77,11 @@ public class SqlUtils {
         return result;
     }
 
+    /**
+     * 集合查询
+     * @param sql
+     * @return
+     */
     public List<Map<String,Object>> QueryList(String sql){
         conn = DButils.open();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
@@ -87,9 +92,9 @@ public class SqlUtils {
             stmt = conn.createStatement();
             resultSet = stmt.executeQuery(sql);
             ResultSetMetaData metaData = resultSet.getMetaData();
-            Map<String, Object> map = new HashMap<String, Object>();
             int cols_len = metaData.getColumnCount();
             while(resultSet.next()){
+                Map<String, Object> map = new HashMap<String, Object>();
                 for(int i=0; i<cols_len; i++){
                     String cols_name = metaData.getColumnName(i+1);
                     Object cols_value = resultSet.getObject(cols_name);
@@ -111,4 +116,5 @@ public class SqlUtils {
         }
         return list;
     }
+
 }

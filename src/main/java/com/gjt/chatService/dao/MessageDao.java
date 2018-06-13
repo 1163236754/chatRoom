@@ -2,7 +2,7 @@ package com.gjt.chatService.dao;
 
 import com.gjt.chat.entity.ChatGroupmessage;
 import com.gjt.chat.entity.ChatMessage;
-import com.gjt.chatService.entity.GetMessageEntity;
+import com.gjt.chatService.entity.GetEntity;
 import com.gjt.chatService.entity.Message;
 
 import java.util.List;
@@ -24,17 +24,17 @@ public interface MessageDao {
 
     /**
      * 接受消息
-     * @param getMessageEntity
+     * @param getEntity
      * @return
      */
-    List<ChatMessage> ReciveMessage(GetMessageEntity getMessageEntity);
+    List<ChatMessage> ReciveMessage(GetEntity getEntity);
 
     /**
      * 接收群消息
-     * @param getMessageEntity
+     * @param getEntity
      * @return
      */
-    List<ChatGroupmessage> MessageReciveGroupAction(GetMessageEntity getMessageEntity);
+    List<ChatGroupmessage> MessageReciveGroupAction(GetEntity getEntity);
 
     /**
      * 插入群消息

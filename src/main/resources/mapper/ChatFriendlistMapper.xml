@@ -3,13 +3,14 @@
 <mapper namespace="com.gjt.chat.dao.mapper.ChatFriendlistMapper" >
   <resultMap id="BaseResultMap" type="com.gjt.chat.entity.ChatFriendlist" >
     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="friendId" property="friendid" jdbcType="VARCHAR" />
     <result column="friend_group" property="friendGroup" jdbcType="VARCHAR" />
-    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="userId" property="userid" jdbcType="VARCHAR" />
     <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
     <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, friend_group, user_id, created_at, updated_at
+    id, friendId, friend_group, userId, created_at, updated_at
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -25,10 +26,10 @@
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into chat_friendlist (friend_group, user_id, created_at, 
-      updated_at)
-    values (#{friendGroup,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{createdAt,jdbcType=TIMESTAMP}, 
-      #{updatedAt,jdbcType=TIMESTAMP})
+    insert into chat_friendlist (friendId, friend_group, userId, 
+      created_at, updated_at)
+    values (#{friendid,jdbcType=VARCHAR}, #{friendGroup,jdbcType=VARCHAR}, #{userid,jdbcType=VARCHAR}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.gjt.chat.entity.ChatFriendlist" >
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
@@ -36,11 +37,14 @@
     </selectKey>
     insert into chat_friendlist
     <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="friendid != null" >
+        friendId,
+      </if>
       <if test="friendGroup != null" >
         friend_group,
       </if>
-      <if test="userId != null" >
-        user_id,
+      <if test="userid != null" >
+        userId,
       </if>
       <if test="createdAt != null" >
         created_at,
@@ -50,11 +54,14 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="friendid != null" >
+        #{friendid,jdbcType=VARCHAR},
+      </if>
       <if test="friendGroup != null" >
         #{friendGroup,jdbcType=VARCHAR},
       </if>
-      <if test="userId != null" >
-        #{userId,jdbcType=INTEGER},
+      <if test="userid != null" >
+        #{userid,jdbcType=VARCHAR},
       </if>
       <if test="createdAt != null" >
         #{createdAt,jdbcType=TIMESTAMP},
@@ -67,11 +74,14 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.gjt.chat.entity.ChatFriendlist" >
     update chat_friendlist
     <set >
+      <if test="friendid != null" >
+        friendId = #{friendid,jdbcType=VARCHAR},
+      </if>
       <if test="friendGroup != null" >
         friend_group = #{friendGroup,jdbcType=VARCHAR},
       </if>
-      <if test="userId != null" >
-        user_id = #{userId,jdbcType=INTEGER},
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=VARCHAR},
       </if>
       <if test="createdAt != null" >
         created_at = #{createdAt,jdbcType=TIMESTAMP},
@@ -84,8 +94,9 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gjt.chat.entity.ChatFriendlist" >
     update chat_friendlist
-    set friend_group = #{friendGroup,jdbcType=VARCHAR},
-      user_id = #{userId,jdbcType=INTEGER},
+    set friendId = #{friendid,jdbcType=VARCHAR},
+      friend_group = #{friendGroup,jdbcType=VARCHAR},
+      userId = #{userid,jdbcType=VARCHAR},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}

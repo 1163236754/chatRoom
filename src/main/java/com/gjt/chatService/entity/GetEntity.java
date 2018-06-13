@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @Title:  获取消息实体
  * @date 2018/6/4/10:32
  */
-public class GetMessageEntity implements Serializable{
+public class GetEntity implements Serializable{
 
     /**
      * type用于判断数据类型

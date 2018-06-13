@@ -1,5 +1,6 @@
 package com.gjt.chatService.dao;
 
+import com.gjt.chatService.entity.AddFriendEntity;
 import com.gjt.chatService.entity.UserEntity;
 
 import java.util.List;
@@ -12,5 +13,7 @@ import java.util.List;
  */
 public interface UserDao {
 
-    List<UserEntity> GetOnlineUser();
+    List<UserEntity> GetOnlineUser(String userName);
+
+    int AddNewFrined(AddFriendEntity addFriendEntity);
 }

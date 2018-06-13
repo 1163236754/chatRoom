@@ -2,8 +2,11 @@ package com.gjt.chatClient;
 
 import com.gjt.chatService.entity.LoginEntity;
 import com.gjt.chatService.entity.ResponseEntity;
+import com.gjt.chatService.entity.TCPEntity;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -18,9 +21,8 @@ import java.util.List;
  * @Title:
  * @date 2018/6/11/15:26
  */
-public class LoginClient implements Runnable{
+public class LoginClient  extends JFrame implements Runnable, ActionListener {
 
-    Socket connect = null;
     /**
      * 设置登陆信息
      */
@@ -34,14 +36,68 @@ public class LoginClient implements Runnable{
 
     private ObjectInputStream reader;
 
-    public LoginClient(Socket connect, String userName, String password) {
-        this.connect = connect;
+    private JLabel userNameLabel;
+
+    private JLabel passwordLabel;
+
+    private JTextField userNameText;
+
+    private JTextField passwordText;
+
+    private JButton logIn;
+
+    private Socket socket;
+
+    private static Thread thread;
+
+    public LoginClient() {
         try {
-            this.userName = userName;
-            this.password = password;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        JPanel loPanel = new JPanel();
+        loPanel.setLayout(null);
+        loPanel.setBounds(0, 150, 600, 250);
+        // 账号标签
+        userNameLabel = new JLabel();
+        userNameLabel.setText("账号：");
+        userNameLabel.setBounds(100,20,60,30);
+        loPanel.add(userNameLabel);
+        // 密码标签
+        passwordLabel = new JLabel();
+        passwordLabel.setText("密码：");
+        passwordLabel.setBounds(100,60,60,30);
+        loPanel.add(passwordLabel);
+        // 账号输入框
+        userNameText = new JTextField();
+        userNameText.setBounds(170,20,200,30);
+        loPanel.add(userNameText);
+        // 密码输入框
+        passwordText = new JTextField();
+        passwordText.setBounds(170,60,200,30);
+        loPanel.add(passwordText);
+        // 按钮注册
+        logIn = new JButton();
+        logIn.setText("登陆");
+        logIn.setBounds(170,100,200,30);
+        logIn.addActionListener(this);
+        loPanel.add(logIn);
+        try {
+            socket = new Socket(TCPEntity.conAddr, 6666);
+        } catch (Exception e) {
+            System.err.println("链接失败");
+            JOptionPane.showMessageDialog(null, "socket建立连接失败!",
+                    "错误", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+        this.setTitle("QQ");
+        this.setLayout(null);
+        this.setBounds(400, 400, 500, 400);
+        this.add(loPanel);
+        this.setResizable(false);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setVisible(true);
+
     }
 
     /**
@@ -49,11 +105,10 @@ public class LoginClient implements Runnable{
      * @throws Exception
      */
     private  void SendMessage() throws Exception {
-
-        writer = new ObjectOutputStream(connect.getOutputStream());
+        writer = new ObjectOutputStream(socket.getOutputStream());
         writer.writeObject(loginEntity);
         writer.flush();
-        reader=new ObjectInputStream(connect.getInputStream());
+        reader=new ObjectInputStream(socket.getInputStream());
         List<ResponseEntity > obj = (List<ResponseEntity>) reader.readObject();
         String result = null;
         if(obj != null){
@@ -69,16 +124,20 @@ public class LoginClient implements Runnable{
         if(result.equals("登陆成功")){
             writer.close();
             reader.close();
-            connect.close();
-            Thread.sleep(1000);
-            Thread.yield();
+            socket.close();
+            try {
+                dispose();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
             Chat chat = new Chat();
-            chat.StartThread(userName);
+            chat.StartThread(userName,obj.get(0).getLoginMessage());
 
         }else {
             System.out.println("登陆失败");
             JOptionPane.showMessageDialog(null, "登陆失败!",
                     "错误", JOptionPane.ERROR_MESSAGE);
+            SendMessage();
         }
 
     }
@@ -117,6 +176,22 @@ public class LoginClient implements Runnable{
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        userName = userNameText.getText().trim();
+        password = passwordText.getText().trim();
+        String str = e.getActionCommand();
+        if("登陆".equals(str)){
+            // 开始登陆
+            thread.start();
+        }
+    }
+
+    public static void main(String[] args) {
+         thread = new Thread(new LoginClient());
+
     }
 }
 
