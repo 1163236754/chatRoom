@@ -81,7 +81,7 @@ public class MessageDaoImpl implements MessageDao{
         // 设置where条件的Id
         sqlEntity.setId("reciver");
         // 设置表
-        sqlEntity.setTableName(KeyWord.DB_chat_offlinemessage);
+        sqlEntity.setTableName(KeyWord.DB_message);
         // 设置where条件的内容
         sqlEntity.setContent("'"+ getEntity.getIsLoginId()+"'");
         // 启动sql生成工具
@@ -110,23 +110,6 @@ public class MessageDaoImpl implements MessageDao{
                 } catch (InvocationTargetException e) {
                     e.printStackTrace();
                 }
-            }
-            // 删除数据库中对应数据
-            sqlEntity.setId("reciver");
-            sqlEntity.setTableName(KeyWord.DB_chat_offlinemessage);
-            sqlEntity.setContent("'"+ getEntity.getIsLoginId()+"'");
-            try {
-                sql = baseSQL.BaseDeleteSQL() + baseSQL.BaseWhereSQL();
-                System.out.println("生成的SQL语句是："+sql);
-            } catch (Exception e) {
-                System.out.println("sql语句有问题，请检查：" + sql);
-                e.printStackTrace();
-            }
-            int i = sqlUtils.Update(sql);
-            if(i == 1){
-                System.out.println("删除成功");
-            }else {
-                System.err.println("删除失败");
             }
         }
 

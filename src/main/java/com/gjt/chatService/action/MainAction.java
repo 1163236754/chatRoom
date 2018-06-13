@@ -99,18 +99,24 @@ public class MainAction {
     private List<ResponseEntity> RequestMsgAction(Object object){
         List<ResponseEntity> result = new ArrayList<>();
         MessageAction messageAction = new MessageAction();
-        List<ChatMessage> message = messageAction.MessageReciveAction((GetEntity) object);
+        MessageEntity messageEntity = (MessageEntity) object;
+        GetEntity getEntity = new GetEntity();
+        getEntity.setIsLoginId(messageEntity.getSender());
+        getEntity.setGroupId(messageEntity.getReciver());
+        getEntity.setType(messageEntity.getType());
+        List<ChatMessage> message = messageAction.MessageReciveAction(getEntity);
         if(message != null){
             ResponseEntity responseEntity = new ResponseEntity();
             responseEntity.setStatusCode("200");
-            responseEntity.setResponseContent("接收成功");
+            responseEntity.setResponseContent("success");
+            responseEntity.setType("request");
             responseEntity.setMessagesData(message);
             result.add(responseEntity);
             return result;
         }else {
             ResponseEntity responseEntity = new ResponseEntity();
             responseEntity.setStatusCode("201");
-            responseEntity.setResponseContent("接收失败");
+            responseEntity.setResponseContent("err");
             result.add(responseEntity);
             return result;
         }

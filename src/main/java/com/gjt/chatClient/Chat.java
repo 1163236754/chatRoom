@@ -2,12 +2,14 @@ package com.gjt.chatClient;
 
 //import com.gjt.chatClient.ui.chatui.ChatPanel;
 
+import com.gjt.chat.entity.ChatMessage;
 import com.gjt.chatService.entity.MessageEntity;
 import com.gjt.chatService.entity.ResponseEntity;
 import com.gjt.chatService.entity.UserEntity;
 import com.gjt.chatService.utils.TcpSocketUtils;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -15,9 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Date;
@@ -99,8 +99,15 @@ public class Chat extends JFrame implements ActionListener {
     private JButton msglist;
     // 好友列表
     private List<UserEntity> userEntityList;
+    // 聊天记录
+    private List<ChatMessage> chatMessages;
+
+    private JScrollPane rightScroll;
+    private JScrollPane leftScroll;
+    private JSplitPane centerSplit;
 
     public Chat(){
+        // 左边的panel
         listPanel = new JPanel();
         listPanel.setBounds(0,100,200,500);
         listPanel.setLayout(null);
@@ -149,8 +156,9 @@ public class Chat extends JFrame implements ActionListener {
             }
         });
         listPanel.add(jList);
+        // 右边的
         chatPanel = new JPanel();
-        chatPanel.setBounds(200,100,700,600);
+        chatPanel.setBounds(200,110,700,600);
         chatPanel.setLayout(null);
         submit = new JButton();
         submit.setBounds(600,460,90,50);
@@ -161,16 +169,17 @@ public class Chat extends JFrame implements ActionListener {
         chatPanel.add(inputField);
         // 键盘监听事件
         contentArea = new JTextArea();
-        contentArea.setBounds(10,30,680,400);
+        contentArea.setBounds(10,30,670,400);
         contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
         JScrollPane scroll = new JScrollPane(contentArea);
         scroll.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll.setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        contentArea.setBorder(new TitledBorder("消息显示区"));
         jLabel = new JLabel();
         jLabel.setBackground(Color.gray);
-        jLabel.setText("这是个测试label");
+//        jLabel.setText("这是个测试label");
         jLabel.setFont(new   java.awt.Font("Dialog",   1,   17));
         jLabel.setBounds(10,0,680,30);
         chatPanel.add(contentArea);
@@ -196,6 +205,7 @@ public class Chat extends JFrame implements ActionListener {
         header.add(addId);
         header.add(addNewFriend);
         header.add(msglist);
+        header.setBorder(new TitledBorder("用户操作"));
         this.setLayout(null);
         this.setBounds(700, 200, 900, 660);
         this.setBackground(new Color(238,238,238));
@@ -205,7 +215,9 @@ public class Chat extends JFrame implements ActionListener {
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
-        connect = conn.ConnectTcpClient();
+//        connect = conn.ConnectTcpClient();
+
+
     }
     public void StartThread(String userName, Map<String, Object> loginMessage){
         // 完成初始消息封装
@@ -213,7 +225,7 @@ public class Chat extends JFrame implements ActionListener {
         senderName = loginMessage.get("name").toString();
         this.setTitle("GIM 当前账号："+senderName);
         System.out.println("发送人名称："+senderName);
-        send =  new Thread(new SendThread(inputField,submit,addNewFriend,msglist));
+        send =  new Thread(new SendThread(inputField,submit,addNewFriend,msglist,jLabel));
         send.start();
         isRun = true;
         // 接收线程
@@ -289,14 +301,17 @@ public class Chat extends JFrame implements ActionListener {
         private JButton addNewFriend;
         // 查看历史消息
         private JButton msglist;
-        public SendThread(JTextField inputField, JButton msglist, JButton addNewFriend, JButton submit) {
+        // 标签
+        private JLabel jLabe;
+        public SendThread(JTextField inputField,  JButton submit, JButton addNewFriend, JButton msglist,JLabel jLabel) {
             messageEntity = new MessageEntity();
             // 暂时只做显示账号
-            jLabel.setText(revicerName);
             this.inputField = inputField;
             this.submit = submit;
             this.msglist = msglist;
             this.addNewFriend = addNewFriend;
+            this.jLabe = jLabel;
+            jLabel.setText(revicerName);
             inputField.addKeyListener(new KeyListener() {
                 @Override
                 public void keyTyped(KeyEvent e) { }
@@ -323,6 +338,20 @@ public class Chat extends JFrame implements ActionListener {
                     revicerName = addId.getText().trim();
                     String content = "添加好友";
                     SendMessage(content);
+                }
+            });
+            msglist.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String str =  e.getActionCommand();
+                    if(str.equals("查看消息历史记录")){
+                        // 设置类型为新增好友
+                        type = "request";
+                        // 设置接收人为自己
+                        revicerName = "@";
+                        String content = "请求消息";
+                        SendMessage(content);
+                    }
                 }
             });
         }
@@ -425,6 +454,8 @@ public class Chat extends JFrame implements ActionListener {
                         case "requestFriendList":
                             userEntityList = responseEntities.get(0).getUserEntities();
                             GetFriendInList();break;
+                        case "request":
+                            SaveMessage(responseEntities);break;
                         default:
                             System.out.println("指令错误");
 
@@ -451,7 +482,7 @@ public class Chat extends JFrame implements ActionListener {
                     System.out.println("内容："+ returnMessageEntity.get(0).getChatGroupmessages().get(i).getContent());
                 }
             }else {
-                for (int i = 0; i < returnMessageEntity.get(0).getChatGroupmessages().size(); i++) {
+                for (int i = 0; i < returnMessageEntity.get(0).getMessagesData().size(); i++) {
                     contentArea.append(" 时间：" + returnMessageEntity.get(0).getMessagesData().get(i).getSendTime().toString()+"\n");
                     contentArea.append(" 来自："+ returnMessageEntity.get(0).getMessagesData().get(i).getSender()+"\n");
                     contentArea.append(" 内容："+ returnMessageEntity.get(0).getMessagesData().get(i).getContent()+"\n");
@@ -466,6 +497,36 @@ public class Chat extends JFrame implements ActionListener {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+        }
+        /**
+         * 打印并保存消息
+         * @param responseEntities
+         */
+        private void SaveMessage(List<ResponseEntity> responseEntities) throws IOException {
+            File file = new File("Msg"+userName+".txt");
+            FileWriter out =  new FileWriter(file);;
+            for (int i = 0; i < responseEntities.get(0).getMessagesData().size(); i++) {
+                System.out.println("时间：" + responseEntities.get(0).getMessagesData().get(i).getSendTime().toString());
+                System.out.println("来自："+ responseEntities.get(0).getMessagesData().get(i).getSender());
+                System.out.println("内容："+ responseEntities.get(0).getMessagesData().get(i).getContent());
+                String msg =  "时间：" + responseEntities.get(0).getMessagesData().get(i).getSendTime().toString()+"\n"+"来自："
+                        + responseEntities.get(0).getMessagesData().get(i).getSender()+"\n"+
+                        "内容："+ responseEntities.get(0).getMessagesData().get(i).getContent()+"\n";
+                contentArea.append(msg);
+                try {
+                    out.write(msg+"\n");
+                    out.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            out.close();
+            JOptionPane.showMessageDialog(null, "已获取到聊天消息!");
+            try{
+                Runtime.getRuntime().exec("cmd /c start notepad .\\"+"Msg"+userName+".txt");
+            }catch(Exception e2)
+            {e2.printStackTrace();
             }
         }
 
