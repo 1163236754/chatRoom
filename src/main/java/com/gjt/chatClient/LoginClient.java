@@ -90,9 +90,9 @@ public class LoginClient  extends JFrame implements Runnable, ActionListener {
                     "错误", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
-        this.setTitle("QQ");
+        this.setTitle("GIM");
         this.setLayout(null);
-        this.setBounds(400, 400, 500, 400);
+        this.setBounds(650, 400, 500, 400);
         this.add(loPanel);
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);

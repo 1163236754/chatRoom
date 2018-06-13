@@ -102,9 +102,7 @@ public class Chat extends JFrame implements ActionListener {
     // 聊天记录
     private List<ChatMessage> chatMessages;
 
-    private JScrollPane rightScroll;
-    private JScrollPane leftScroll;
-    private JSplitPane centerSplit;
+    private JScrollPane scroll;
 
     public Chat(){
         // 左边的panel
@@ -171,18 +169,25 @@ public class Chat extends JFrame implements ActionListener {
         contentArea = new JTextArea();
         contentArea.setBounds(10,30,670,400);
         contentArea.setFont(new   java.awt.Font("Dialog",   1,   14));
-        JScrollPane scroll = new JScrollPane(contentArea);
+        contentArea.setBorder(new TitledBorder("消息显示区"));
+
+        scroll = new JScrollPane();
+        scroll.add(contentArea);
+        scroll.setViewportView(contentArea);
         scroll.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll.setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        contentArea.setBorder(new TitledBorder("消息显示区"));
+        scroll.setPreferredSize(new Dimension(800,400));
+        scroll.validate();
+        scroll.setBounds(10,30,670,400);
         jLabel = new JLabel();
         jLabel.setBackground(Color.gray);
 //        jLabel.setText("这是个测试label");
         jLabel.setFont(new   java.awt.Font("Dialog",   1,   17));
         jLabel.setBounds(10,0,680,30);
-        chatPanel.add(contentArea);
+        chatPanel.add(scroll);
+//        chatPanel.add(contentArea);
         chatPanel.add(jLabel);
         // 头部
         header = new JPanel();
@@ -215,9 +220,7 @@ public class Chat extends JFrame implements ActionListener {
         this.setResizable(false);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
-//        connect = conn.ConnectTcpClient();
-
-
+        connect = conn.ConnectTcpClient();
     }
     public void StartThread(String userName, Map<String, Object> loginMessage){
         // 完成初始消息封装

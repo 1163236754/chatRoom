@@ -10,6 +10,11 @@ import java.awt.*;
  * @date 2018/6/8/10:55
  */
 public class HeadPanel extends JPanel {
+
+    public HeadPanel(){
+        this.setLayout(null);
+        this.setBounds(0,0,600,200);
+    }
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
