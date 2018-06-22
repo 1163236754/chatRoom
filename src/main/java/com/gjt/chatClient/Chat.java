@@ -516,7 +516,11 @@ public class Chat extends JFrame implements ActionListener {
                 String msg =  "时间：" + responseEntities.get(0).getMessagesData().get(i).getSendTime().toString()+"\n"+"来自："
                         + responseEntities.get(0).getMessagesData().get(i).getSender()+"\n"+
                         "内容："+ responseEntities.get(0).getMessagesData().get(i).getContent()+"\n";
-                contentArea.append(msg);
+                try{
+                    contentArea.append(msg);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 try {
                     out.write(msg+"\n");
                     out.flush();
